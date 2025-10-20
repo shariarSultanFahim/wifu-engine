@@ -1,0 +1,31 @@
+{
+  "name": "wifu-engine",
+  "version": "1.0.0",
+  "description": "A simple wifu overlay creator for Windows / MacOS / Linux using Electron.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "keywords": [],
+  "author": "lungiman",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.lungiman.wifu-engine",
+    "productName": "Wifu Engine",
+    "files": [
+      "main.js",
+      "index.html",
+      "preload.js",
+      "icon.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    }
+  }
+}
