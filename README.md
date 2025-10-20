@@ -1,14 +1,25 @@
 # Wifu Engine
 
+### A lightweight, extensible engine for creating 2D anime-style transparent overlay.
+
+
 ## [Download](https://drive.google.com/file/d/1kuQrhK3d84-6aZdS-W9Q8jnn5LeTjY5z/view?usp=sharing)
 
+## Key Features
 
-A lightweight, extensible engine for creating 2D anime-style transparent overlay.
+- Add Multiple Images: Add any local image or GIF to your canvas.
+- Easy Manipulation: Drag, drop, resize, and delete items with an intuitive interface.
+- Dynamic Canvas: Set the canvas to your screen's resolution or define a custom size.
+- One-Click Overlay: Apply your entire creation as a transparent, click-through overlay on your desktop.
+- System Tray Integration: Minimize the app to the system tray to keep it running in the background without cluttering your taskbar.
+- Cross-Platform: Installers are available for Windows, with macOS and Linux support included.
 
-## Features
+## How to Use
 
--Transparent Overlay
--Gif's and images for customizing
+- Add Images: Click the "Add Image/GIF" button to add your files to the canvas.
+- Arrange: Click and drag your images to position them. Select an image to see handles for resizing and deleting.
+- Apply Overlay: Once you're happy with your layout, click "Apply as Overlay."
+- Manage: Use "Remove Overlay" to take it down or "Minimize to Tray" to hide the main window.
 
 ## Quickstart
 
@@ -45,6 +56,7 @@ npm build   # produce a production bundle
 ## License
 
 MIT — see LICENSE file for details
+
 
 
 
