@@ -9,7 +9,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Feather Icons for UI -->
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -63,7 +62,6 @@
       <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Section: Editor -->
         <div id="editor" class="app-section flex flex-col h-full">
-          <!-- Header Controls -->
           <header
             class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex flex-wrap items-center justify-between gap-3 shrink-0"
           >
@@ -75,7 +73,6 @@
                 <i data-feather="save" class="w-4 h-4"></i> Save Preset
               </button>
             </div>
-
             <div class="flex items-center gap-4">
               <button
                 id="get-screen-size-btn"
@@ -105,7 +102,6 @@
                 </button>
               </div>
             </div>
-
             <div class="flex items-center gap-2">
               <button
                 id="apply-overlay-btn"
@@ -127,8 +123,6 @@
               </button>
             </div>
           </header>
-
-          <!-- Main Canvas Area -->
           <main
             class="flex-1 flex justify-center items-center p-4 overflow-auto bg-zinc-900"
           >
@@ -155,9 +149,7 @@
           <div
             id="gallery-grid"
             class="flex-1 p-6 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4"
-          >
-            <!-- Gallery items will be injected here -->
-          </div>
+          ></div>
         </div>
 
         <!-- Section: Presets -->
@@ -176,17 +168,13 @@
           <div
             id="presets-list"
             class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-4"
-          >
-            <!-- Presets will be injected here -->
-          </div>
+          ></div>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
-    <!-- Save Preset Modal -->
     <div
       id="save-preset-modal"
       class="fixed inset-0 z-40 items-center justify-center hidden modal-backdrop"
@@ -239,20 +227,16 @@
     </div>
 
     <script>
-      // Initialize Feather Icons
       feather.replace();
     </script>
-
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // --- STATE MANAGEMENT ---
         let appData = { gallery: [], presets: [] };
         let activeItem = null;
         let currentAction = null;
-        let initialX, initialY, initialWidth, offsetX, offsetY;
-        let currentPresetId = null; // Track which preset is being edited
+        let initialX, initialY, initialWidth, offsetX, offsetY, initialRotation;
+        let currentPresetId = null;
 
-        // --- DOM ELEMENTS ---
         const canvasContainer = document.getElementById("canvas-container");
         const toast = document.getElementById("toast");
         const sections = {
@@ -261,8 +245,6 @@
           presets: document.getElementById("presets"),
         };
         const navButtons = document.querySelectorAll(".nav-btn");
-
-        // Editor elements
         const getScreenSizeBtn = document.getElementById("get-screen-size-btn");
         const customWidthInput = document.getElementById("custom-width");
         const customHeightInput = document.getElementById("custom-height");
@@ -275,16 +257,10 @@
           "minimize-to-tray-btn"
         );
         const savePresetBtn = document.getElementById("save-preset-btn");
-
-        // Gallery elements
         const importGalleryBtn = document.getElementById("import-gallery-btn");
         const galleryGrid = document.getElementById("gallery-grid");
-
-        // Preset elements
         const newPresetBtn = document.getElementById("new-preset-btn");
         const presetsList = document.getElementById("presets-list");
-
-        // Modal elements
         const savePresetModal = document.getElementById("save-preset-modal");
         const presetNameInput = document.getElementById("preset-name");
         const presetDescInput = document.getElementById("preset-description");
@@ -295,7 +271,6 @@
           "confirm-save-preset-btn"
         );
 
-        // --- INITIALIZATION ---
         async function initialize() {
           if (window.electronAPI) {
             appData = await window.electronAPI.loadData();
@@ -306,7 +281,6 @@
         }
         initialize();
 
-        // --- UI & NAVIGATION ---
         function showToast(message) {
           toast.textContent = message;
           toast.classList.add("show");
@@ -316,12 +290,8 @@
         navButtons.forEach((button) => {
           button.addEventListener("click", () => {
             const sectionId = button.dataset.section;
-
-            // Toggle active section
             Object.values(sections).forEach((s) => s.classList.add("hidden"));
             sections[sectionId].classList.remove("hidden");
-
-            // Toggle button styles
             navButtons.forEach((btn) => {
               btn.classList.remove("bg-purple-600", "text-white");
               btn.classList.add("text-zinc-400");
@@ -331,19 +301,13 @@
           });
         });
 
-        // --- GALLERY LOGIC ---
         function renderGallery() {
           galleryGrid.innerHTML = "";
           appData.gallery.forEach((item) => {
             const div = document.createElement("div");
             div.className =
               "relative aspect-square bg-zinc-800 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-purple-500 transition-all";
-            div.innerHTML = `
-                    <img src="${item.path}" class="w-full h-full object-contain">
-                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p class="text-white font-bold text-sm">Add to Editor</p>
-                    </div>
-                `;
+            div.innerHTML = `<img src="${item.path}" class="w-full h-full object-contain"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><p class="text-white font-bold text-sm">Add to Editor</p></div>`;
             div.addEventListener("click", () => {
               createDraggableItem(item.id);
               showToast("Added image to editor.");
@@ -355,7 +319,6 @@
         importGalleryBtn.addEventListener("click", async () => {
           if (!window.electronAPI)
             return showToast("Feature only available in app.");
-
           const newFiles = await window.electronAPI.importGalleryFiles();
           if (newFiles && newFiles.length > 0) {
             appData.gallery.push(...newFiles);
@@ -365,45 +328,34 @@
           }
         });
 
-        // --- PRESET LOGIC ---
         function renderPresets() {
           presetsList.innerHTML = "";
           if (appData.presets.length === 0) {
-            presetsList.innerHTML = `<p class="text-zinc-500 text-center">No presets saved yet. Create one in the Editor!</p>`;
+            presetsList.innerHTML = `<p class="text-zinc-500 text-center">No presets saved yet.</p>`;
             return;
           }
           appData.presets.forEach((preset) => {
             const div = document.createElement("div");
             div.className =
               "bg-zinc-800 p-4 rounded-lg border border-zinc-700 flex justify-between items-center";
-            div.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-white">${preset.name}</h4>
-                        <p class="text-sm text-zinc-400">${preset.description}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button data-preset-id="${preset.id}" class="load-preset-btn px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">Load</button>
-                        <button data-preset-id="${preset.id}" class="delete-preset-btn px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg">Delete</button>
-                    </div>
-                `;
+            div.innerHTML = `<div><h4 class="font-bold text-white">${preset.name}</h4><p class="text-sm text-zinc-400">${preset.description}</p></div><div class="flex gap-2"><button data-preset-id="${preset.id}" class="load-preset-btn px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">Load</button><button data-preset-id="${preset.id}" class="delete-preset-btn px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg">Delete</button></div>`;
             presetsList.appendChild(div);
           });
         }
 
         presetsList.addEventListener("click", async (e) => {
           if (e.target.classList.contains("load-preset-btn")) {
-            const presetId = e.target.dataset.presetId;
-            const preset = appData.presets.find((p) => p.id === presetId);
+            const preset = appData.presets.find(
+              (p) => p.id === e.target.dataset.presetId
+            );
             if (preset) {
               loadPreset(preset);
               showToast(`Loaded preset: ${preset.name}`);
-              // Switch to editor view
               document.querySelector('.nav-btn[data-section="editor"]').click();
             }
           } else if (e.target.classList.contains("delete-preset-btn")) {
-            const presetIdToDelete = e.target.dataset.presetId;
             appData.presets = appData.presets.filter(
-              (p) => p.id !== presetIdToDelete
+              (p) => p.id !== e.target.dataset.presetId
             );
             await window.electronAPI.saveData(appData);
             renderPresets();
@@ -413,7 +365,7 @@
 
         newPresetBtn.addEventListener("click", () => {
           clearCanvas();
-          currentPresetId = null; // This is a new, unsaved preset
+          currentPresetId = null;
           document.querySelector('.nav-btn[data-section="editor"]').click();
           showToast("Started a new preset.");
         });
@@ -431,35 +383,25 @@
               el.style.top = `${item.top}%`;
               el.style.width = `${item.width}px`;
               el.style.height = `${item.height}px`;
+              const rotation = item.rotation || 0;
+              el.dataset.rotation = rotation;
+              el.style.transform = `rotate(${rotation}deg)`;
             }
           });
         }
 
-        // Modal Logic for Saving Presets
         savePresetBtn.addEventListener("click", () => {
           const items = Array.from(
             canvasContainer.querySelectorAll(".overlay-item")
           );
           if (items.length === 0)
             return showToast("Cannot save an empty preset.");
-
-          if (currentPresetId) {
-            // It's an existing preset, just update it
-            const existingPreset = appData.presets.find(
-              (p) => p.id === currentPresetId
-            );
-            if (existingPreset) {
-              saveOrUpdatePreset(currentPresetId);
-            } else {
-              // The ID is stale, treat as new
-              currentPresetId = null;
-              presetNameInput.value = "";
-              presetDescInput.value = "";
-              savePresetModal.classList.remove("hidden");
-              savePresetModal.classList.add("flex");
-            }
+          const existingPreset = currentPresetId
+            ? appData.presets.find((p) => p.id === currentPresetId)
+            : null;
+          if (existingPreset) {
+            saveOrUpdatePreset(currentPresetId);
           } else {
-            // It's a new preset, show modal to get name/desc
             presetNameInput.value = "";
             presetDescInput.value = "";
             savePresetModal.classList.remove("hidden");
@@ -472,9 +414,9 @@
           savePresetModal.classList.remove("flex");
         });
 
-        confirmSavePresetBtn.addEventListener("click", () => {
-          saveOrUpdatePreset();
-        });
+        confirmSavePresetBtn.addEventListener("click", () =>
+          saveOrUpdatePreset()
+        );
 
         async function saveOrUpdatePreset(idToUpdate = null) {
           const canvasRect = canvasContainer.getBoundingClientRect();
@@ -486,6 +428,7 @@
             top: (item.offsetTop / canvasRect.height) * 100,
             width: item.offsetWidth,
             height: item.offsetHeight,
+            rotation: parseFloat(item.dataset.rotation) || 0,
           }));
 
           if (idToUpdate) {
@@ -501,7 +444,6 @@
           } else {
             const name = presetNameInput.value.trim();
             if (!name) return showToast("Preset name is required.");
-
             const newPreset = {
               id: `preset_${Date.now()}`,
               name,
@@ -509,7 +451,7 @@
               items: itemsToSave,
             };
             appData.presets.push(newPreset);
-            currentPresetId = newPreset.id; // Start tracking this new preset
+            currentPresetId = newPreset.id;
             showToast(`Preset '${name}' saved.`);
           }
 
@@ -519,7 +461,6 @@
           savePresetModal.classList.remove("flex");
         }
 
-        // --- EDITOR & CANVAS LOGIC ---
         function setCanvasSize(width, height) {
           if (!width || !height) return showToast("Invalid resolution.");
           canvasContainer.style.aspectRatio = `${width} / ${height}`;
@@ -538,14 +479,10 @@
           const itemWrapper = document.createElement("div");
           itemWrapper.className = "overlay-item";
           itemWrapper.dataset.galleryId = galleryId;
+          itemWrapper.dataset.rotation = "0";
           itemWrapper.style.top = "20px";
           itemWrapper.style.left = "20px";
-
-          itemWrapper.innerHTML = `
-                <img src="${galleryItem.path}" />
-                <div class="resize-handle"></div>
-                <div class="delete-handle">&times;</div>
-            `;
+          itemWrapper.innerHTML = `<img src="${galleryItem.path}" /><div class="resize-handle"></div><div class="delete-handle">&times;</div><div class="rotate-handle">⟳</div>`;
 
           canvasContainer.appendChild(itemWrapper);
           itemWrapper.addEventListener("mousedown", startAction);
@@ -572,9 +509,15 @@
           initialX = e.clientX;
           initialY = e.clientY;
 
+          // NEW: Check for rotation handle
+          const isRotateHandle = e.target.classList.contains("rotate-handle");
+
           if (e.target.classList.contains("resize-handle")) {
             currentAction = "resize";
             initialWidth = activeItem.offsetWidth;
+          } else if (isRotateHandle) {
+            currentAction = "rotate";
+            initialRotation = parseFloat(activeItem.dataset.rotation) || 0;
           } else {
             currentAction = "drag";
             offsetX = e.clientX - activeItem.getBoundingClientRect().left;
@@ -596,7 +539,24 @@
             const dx = e.clientX - initialX;
             const newWidth = Math.max(20, initialWidth + dx);
             activeItem.style.width = `${newWidth}px`;
-            activeItem.style.height = "auto"; // Maintain aspect ratio
+            activeItem.style.height = "auto";
+          } else if (currentAction === "rotate") {
+            const rect = activeItem.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const startAngle =
+              Math.atan2(initialY - centerY, initialX - centerX) *
+              (180 / Math.PI);
+            const currentAngle =
+              Math.atan2(e.clientY - centerY, e.clientX - centerX) *
+              (180 / Math.PI);
+
+            const deltaAngle = currentAngle - startAngle;
+            const newRotation = initialRotation + deltaAngle;
+
+            activeItem.style.transform = `rotate(${newRotation}deg)`;
+            activeItem.dataset.rotation = newRotation;
           }
         }
 
@@ -613,7 +573,6 @@
           }
         });
 
-        // --- ELECTRON IPC EVENT LISTENERS ---
         getScreenSizeBtn.addEventListener("click", async () => {
           if (!window.electronAPI)
             return showToast("Feature only available in app.");
@@ -647,6 +606,7 @@
                 top: (item.offsetTop / canvasRect.height) * 100,
                 width: item.offsetWidth,
                 height: item.offsetHeight,
+                rotation: parseFloat(item.dataset.rotation) || 0,
               };
             })
             .filter((item) => item.path);
@@ -658,8 +618,7 @@
         });
 
         removeOverlayBtn.addEventListener("click", () => {
-          if (!window.electronAPI) return;
-          window.electronAPI.removeOverlay();
+          if (window.electronAPI) window.electronAPI.removeOverlay();
           showToast("Overlay removed.");
         });
 

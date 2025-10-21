@@ -11,18 +11,15 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
 
-// --- Global References ---
 let mainWindow;
 let overlayWindow;
 let tray = null;
 let tempOverlayFile = null;
 
-// --- App Data Management ---
 const userDataPath = app.getPath("userData");
 const galleryPath = path.join(userDataPath, "gallery");
 const dataFilePath = path.join(userDataPath, "data.json");
 
-// Ensure directories and data file exist on startup
 function initializeAppData() {
   if (!fs.existsSync(galleryPath)) {
     fs.mkdirSync(galleryPath, { recursive: true });
@@ -35,7 +32,6 @@ function initializeAppData() {
   }
 }
 
-// --- Main Window Creation ---
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1600,
@@ -56,7 +52,6 @@ const createWindow = () => {
   });
 };
 
-// --- Overlay Window Creation ---
 const createOverlay = (htmlContent) => {
   if (overlayWindow) {
     overlayWindow.close();
@@ -105,7 +100,6 @@ const createOverlay = (htmlContent) => {
   });
 };
 
-// --- App Lifecycle Events ---
 app.whenReady().then(() => {
   initializeAppData();
   createWindow();
@@ -127,15 +121,11 @@ app.on("before-quit", () => {
   }
 });
 
-// --- IPC Handlers ---
-
-// Get Screen Size
 ipcMain.handle("get-screen-size", () => {
   const primaryDisplay = screen.getPrimaryDisplay();
   return primaryDisplay.size;
 });
 
-// Apply Overlay
 ipcMain.on("apply-overlay", (event, items) => {
   const overlayHtmlContent = items
     .map((item) => {
@@ -144,7 +134,9 @@ ipcMain.on("apply-overlay", (event, items) => {
         const imageBase64 = imageBuffer.toString("base64");
         const mimeType = `image/${path.extname(item.path).slice(1) || "png"}`;
         const imageSrc = `data:${mimeType};base64,${imageBase64}`;
-        return `<img src="${imageSrc}" style="position: absolute; left: ${item.left}%; top: ${item.top}%; width: ${item.width}px; height: ${item.height}px;">`;
+        // --- ROTATION ADDED HERE ---
+        const transform = `transform: rotate(${item.rotation || 0}deg);`;
+        return `<img src="${imageSrc}" style="position: absolute; left: ${item.left}%; top: ${item.top}%; width: ${item.width}px; height: ${item.height}px; ${transform}">`;
       } catch (error) {
         console.error(
           "Failed to read image file for overlay:",
@@ -162,12 +154,10 @@ ipcMain.on("apply-overlay", (event, items) => {
   createOverlay(fullHtml);
 });
 
-// Remove Overlay
 ipcMain.on("remove-overlay", () => {
   if (overlayWindow) overlayWindow.close();
 });
 
-// Minimize to Tray
 ipcMain.on("minimize-to-tray", () => {
   if (!tray) {
     const iconPath = path.join(__dirname, "icon.png");
@@ -189,20 +179,16 @@ ipcMain.on("minimize-to-tray", () => {
   mainWindow.hide();
 });
 
-// --- NEW IPC Handlers for Gallery & Presets ---
-
-// Load app data from data.json
 ipcMain.handle("load-data", async () => {
   try {
     const data = fs.readFileSync(dataFilePath, "utf-8");
     return JSON.parse(data);
   } catch (error) {
     console.error("Failed to load data file:", error);
-    return { gallery: [], presets: [] }; // Return default structure on error
+    return { gallery: [], presets: [] };
   }
 });
 
-// Save app data to data.json
 ipcMain.handle("save-data", async (event, data) => {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
@@ -213,7 +199,6 @@ ipcMain.handle("save-data", async (event, data) => {
   }
 });
 
-// Handle importing files to the gallery
 ipcMain.handle("import-gallery-files", async () => {
   const { filePaths } = await dialog.showOpenDialog({
     title: "Import GIFs",
@@ -233,7 +218,7 @@ ipcMain.handle("import-gallery-files", async () => {
       fs.copyFileSync(filePath, newPath);
       importedFiles.push({
         id: `gallery_${crypto.randomUUID()}`,
-        path: newPath, // Store the absolute path in the gallery
+        path: newPath,
       });
     } catch (error) {
       console.error(`Failed to copy file: ${filePath}`, error);

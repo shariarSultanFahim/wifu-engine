@@ -15,7 +15,6 @@ body {
   overflow: hidden;
 }
 
-/* Custom scrollbar for gallery/presets */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
@@ -72,14 +71,16 @@ body {
 }
 
 .resize-handle,
-.delete-handle {
+.delete-handle,
+.rotate-handle {
   position: absolute;
   display: none;
   z-index: 1001;
 }
 .overlay-item.selected .resize-handle,
-.overlay-item.selected .delete-handle {
-  display: block;
+.overlay-item.selected .delete-handle,
+.overlay-item.selected .rotate-handle {
+  display: flex;
 }
 
 .resize-handle {
@@ -101,7 +102,6 @@ body {
   background-color: #ef4444;
   cursor: pointer;
   z-index: 1002;
-  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
@@ -109,6 +109,23 @@ body {
   color: white;
   line-height: 1;
   border-radius: 50%;
+}
+
+/* New Rotate Handle Style */
+.rotate-handle {
+  top: -8px;
+  left: -8px;
+  width: 20px;
+  height: 20px;
+  background-color: #f59e0b; /* amber-500 */
+  cursor: crosshair;
+  z-index: 1002;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid white;
+  font-size: 14px;
+  color: white;
 }
 
 .toast {
@@ -128,7 +145,6 @@ body {
   bottom: 20px;
 }
 
-/* Modal styles */
 .modal-backdrop {
   background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
