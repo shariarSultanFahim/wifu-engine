@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win"
+    "build": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
   },
   "keywords": [],
   "author": "lungiman",
@@ -21,11 +23,23 @@
       "main.js",
       "index.html",
       "preload.js",
+      "style.css",
       "icon.png"
     ],
     "win": {
       "target": "nsis",
-      "icon": "icon.png"
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icons"
     }
   }
 }
