@@ -120,6 +120,11 @@ app.on("window-all-closed", () => {
 });
 
 ipcMain.on("apply-overlay", (event, items) => {
+  //Close existing overlay if any
+  if (overlayWindow) {
+    overlayWindow.close();
+  }
+
   const overlayHtmlContent = items
     .map((item) => {
       try {
@@ -209,15 +214,18 @@ ipcMain.on("minimize-to-tray", () => {
 });
 
 app.on("before-quit", () => {
-  if (tray) {
-    tray.destroy();
-  }
   // Also clean up temp file on quit if overlay is active
   if (tempOverlayFile && fs.existsSync(tempOverlayFile)) {
     try {
       fs.unlinkSync(tempOverlayFile);
     } catch (error) {
       console.error("Could not clean up temp file on quit:", error);
+      return;
+    } finally {
+      if (tray) {
+        tray.destroy();
+      }
+      tempOverlayFile = null;
     }
   }
 });
