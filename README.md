@@ -1,14 +1,25 @@
-# my-anime-engine
+# Wifu Engine
 
-A lightweight, extensible engine for creating 2D anime-style animations and simple games. Designed to be framework-agnostic and easy to integrate into web or desktop projects.
+### A lightweight, extensible engine for creating 2D anime-style transparent overlay.
 
-## Features
 
-- Core animation loop with configurable timestep
-- Sprite-sheet and frame-based animation support
-- Simple scene and entity system
-- Basic asset loader (images, audio)
-- Plug-in friendly (renderers, input, physics)
+## [Download](https://drive.google.com/file/d/1kuQrhK3d84-6aZdS-W9Q8jnn5LeTjY5z/view?usp=sharing)
+
+## Key Features
+
+- Add Multiple Images: Add any local image or GIF to your canvas.
+- Easy Manipulation: Drag, drop, resize, and delete items with an intuitive interface.
+- Dynamic Canvas: Set the canvas to your screen's resolution or define a custom size.
+- One-Click Overlay: Apply your entire creation as a transparent, click-through overlay on your desktop.
+- System Tray Integration: Minimize the app to the system tray to keep it running in the background without cluttering your taskbar.
+- Cross-Platform: Installers are available for Windows, with macOS and Linux support included.
+
+## How to Use
+
+- Add Images: Click the "Add Image/GIF" button to add your files to the canvas.
+- Arrange: Click and drag your images to position them. Select an image to see handles for resizing and deleting.
+- Apply Overlay: Once you're happy with your layout, click "Apply as Overlay."
+- Manage: Use "Remove Overlay" to take it down or "Minimize to Tray" to hide the main window.
 
 ## Quickstart
 
@@ -26,46 +37,15 @@ npm install
 Run (example scripts — adapt to your project)
 
 ```bash
-npm run dev     # start a development build / example app
-npm run build   # produce a production bundle
-npm test        # run tests
-```
-
-## Basic usage (pseudo-example)
-
-```js
-import { Engine, Scene, Sprite } from "my-anime-engine";
-
-const engine = new Engine({ width: 800, height: 600 });
-const scene = new Scene();
-
-const hero = new Sprite("assets/hero-spritesheet.png", {
-  frameWidth: 64,
-  frameHeight: 64,
-  animations: {
-    idle: { frames: [0, 1, 2], rate: 8 },
-    run: { frames: [3, 4, 5, 6], rate: 12 },
-  },
-});
-
-hero.play("idle");
-scene.add(hero);
-engine.start(scene);
+npm start     # start a development build / example app
+npm build   # produce a production bundle
 ```
 
 ## Project structure (suggested)
 
 - /src — engine source
-- /examples — runnable demos
-- /docs — usage and API docs
-- /tests — unit and integration tests
 - README.md — this file
 
-## Development
-
-- Follow consistent formatting and linting (Prettier, ESLint recommended)
-- Write unit tests for new features
-- Keep public API stable; use feature branches and PRs
 
 ## Contributing
 
@@ -77,10 +57,6 @@ engine.start(scene);
 
 MIT — see LICENSE file for details
 
-## TODO / Roadmap (examples)
 
-- WebGL renderer
-- Timeline editor / visual tool
-- Plugin marketplace / examples
 
-Contributions and feedback welcome.
+
