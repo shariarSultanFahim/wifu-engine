@@ -33,9 +33,12 @@ function initializeAppData() {
 }
 
 const createWindow = () => {
+  // --- UI CHANGE: Reverted to default window frame ---
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
+    // frame: true, // Default is true, so we can remove the frame: false
+    // transparent: false, // Default is false
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -43,6 +46,9 @@ const createWindow = () => {
   });
 
   mainWindow.loadFile("index.html");
+
+  // --- UI CHANGE: Remove custom menu bar ---
+  mainWindow.setMenuBarVisibility(false);
 
   mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
@@ -84,7 +90,6 @@ const _createActualOverlay = (htmlContent) => {
   overlayWindow.loadFile(tempOverlayFile);
 
   overlayWindow.once("ready-to-show", () => {
-    // If the window still exists (hasn't been closed again rapidly), show it.
     if (overlayWindow) {
       overlayWindow.show();
     }
@@ -103,16 +108,13 @@ const _createActualOverlay = (htmlContent) => {
   });
 };
 
-// This function now safely handles closing an existing overlay before creating a new one.
 const createOverlay = (htmlContent) => {
   if (overlayWindow) {
-    // When the old window confirms it has closed, then create the new one.
     overlayWindow.once("closed", () => {
       _createActualOverlay(htmlContent);
     });
     overlayWindow.close();
   } else {
-    // If no overlay exists, create one immediately.
     _createActualOverlay(htmlContent);
   }
 };
@@ -137,6 +139,11 @@ app.on("before-quit", () => {
     tray.destroy();
   }
 });
+
+// --- UI CHANGE: Removed IPC Handlers for custom controls ---
+// ipcMain.on('minimize-window', ...
+// ipcMain.on('maximize-window', ...
+// ipcMain.on('close-window', ...
 
 ipcMain.handle("get-screen-size", () => {
   const primaryDisplay = screen.getPrimaryDisplay();

@@ -12,169 +12,185 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="bg-zinc-900 text-zinc-100">
-    <div class="flex h-screen">
-      <!-- Vertical Sidebar -->
-      <nav
-        class="w-20 bg-zinc-900/50 border-r border-zinc-800 flex flex-col items-center py-6 space-y-8"
-      >
-        <div class="text-purple-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="feather feather-wind"
-          >
-            <path
-              d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
-            ></path>
-          </svg>
-        </div>
-        <div class="flex flex-col space-y-8">
-          <button
-            data-section="editor"
-            class="nav-btn p-2 rounded-lg bg-purple-600 text-white"
-          >
-            <i data-feather="edit" class="sidebar-icon"></i>
-          </button>
-          <button
-            data-section="gallery"
-            class="nav-btn p-2 rounded-lg text-zinc-400"
-          >
-            <i data-feather="image" class="sidebar-icon"></i>
-          </button>
-          <button
-            data-section="presets"
-            class="nav-btn p-2 rounded-lg text-zinc-400"
-          >
-            <i data-feather="save" class="sidebar-icon"></i>
-          </button>
-        </div>
-      </nav>
+  <body class="p-2">
+    <div
+      id="app-wrapper"
+      class="h-full w-full rounded-lg overflow-hidden flex flex-col"
+    >
+      <div class="flex h-[100vh] overflow-hidden">
+        <!-- Vertical Sidebar -->
+        <nav
+          class="w-20 h-full bg-black/20 flex flex-col items-center py-4 space-y-8 shrink-0 border-r border-white/10"
+        >
+          <div style="color: var(--accent-pink)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
+              ></path>
+            </svg>
+          </div>
+          <div class="flex flex-col space-y-6">
+            <button
+              data-section="editor"
+              class="nav-btn p-3 rounded-lg active"
+              title="Editor"
+            >
+              <i data-feather="edit" class="sidebar-icon"></i>
+            </button>
+            <button
+              data-section="gallery"
+              class="nav-btn p-3 rounded-lg"
+              title="Gallery"
+            >
+              <i data-feather="image" class="sidebar-icon"></i>
+            </button>
+            <button
+              data-section="presets"
+              class="nav-btn p-3 rounded-lg"
+              title="Presets"
+            >
+              <i data-feather="save" class="sidebar-icon"></i>
+            </button>
+          </div>
+        </nav>
 
-      <!-- Main Content -->
-      <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Section: Editor -->
-        <div id="editor" class="app-section flex flex-col h-full">
-          <header
-            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex flex-wrap items-center justify-between gap-3 shrink-0"
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+          <!-- Section: Editor -->
+          <div
+            id="editor"
+            class="app-section flex flex-col h-full overflow-hidden space-y-4"
           >
-            <div class="flex items-center gap-4">
+            <header
+              class="bg-black/20 p-3 shadow-lg flex flex-wrap items-center justify-between gap-3 shrink-0 rounded-lg border border-white/10"
+            >
               <button
                 id="save-preset-btn"
-                class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-3 rounded-lg flex items-center gap-2"
+                class="font-bold py-2 px-3 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-green-dark)"
               >
                 <i data-feather="save" class="w-4 h-4"></i> Save Preset
               </button>
-            </div>
-            <div class="flex items-center gap-4">
-              <button
-                id="get-screen-size-btn"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
-              >
-                Use Screen Size
-              </button>
-              <div>
-                <input
-                  type="number"
-                  id="custom-width"
-                  placeholder="W"
-                  class="bg-zinc-700 border border-zinc-600 text-sm rounded-lg w-16 p-2"
-                />
-                <span class="text-zinc-400 mx-1">x</span>
-                <input
-                  type="number"
-                  id="custom-height"
-                  placeholder="H"
-                  class="bg-zinc-700 border border-zinc-600 text-sm rounded-lg w-16 p-2"
-                />
+              <div class="flex items-center gap-4">
                 <button
-                  id="apply-custom-size-btn"
-                  class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold py-2 px-3 rounded-lg ml-2"
+                  id="get-screen-size-btn"
+                  class="bg-indigo-600/80 hover:bg-indigo-700/80 text-white text-sm font-bold py-2 px-3 rounded-lg"
                 >
-                  Apply
+                  Screen Size
+                </button>
+                <div>
+                  <input
+                    type="number"
+                    id="custom-width"
+                    placeholder="W"
+                    class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg w-20 p-2"
+                  />
+                  <span class="text-zinc-400 mx-1">x</span>
+                  <input
+                    type="number"
+                    id="custom-height"
+                    placeholder="H"
+                    class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg w-20 p-2"
+                  />
+                  <button
+                    id="apply-custom-size-btn"
+                    class="bg-teal-600/80 hover:bg-teal-700/80 text-white text-sm font-bold py-2 px-3 rounded-lg ml-2"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  id="apply-overlay-btn"
+                  class="font-bold py-2 px-4 rounded-lg text-white"
+                  style="background-color: var(--accent-pink)"
+                >
+                  <span class="hover:opacity-80">Apply Overlay</span>
+                </button>
+                <button
+                  id="remove-overlay-btn"
+                  class="bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Remove
+                </button>
+                <button
+                  id="minimize-to-tray-btn"
+                  class="bg-gray-600/80 hover:bg-gray-700/80 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Tray
                 </button>
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button
-                id="apply-overlay-btn"
-                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg"
-              >
-                Apply Overlay
-              </button>
-              <button
-                id="remove-overlay-btn"
-                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
-              >
-                Remove Overlay
-              </button>
-              <button
-                id="minimize-to-tray-btn"
-                class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
-              >
-                Minimize
-              </button>
-            </div>
-          </header>
-          <main
-            class="flex-1 flex justify-center items-center p-4 overflow-auto bg-zinc-900"
+            </header>
+            <main
+              class="flex-1 flex justify-center items-center overflow-auto min-h-0"
+            >
+              <div
+                id="canvas-container"
+                style="width: 1280px; aspect-ratio: 16/9; max-width: 100%"
+              ></div>
+            </main>
+          </div>
+
+          <!-- Other sections remain unchanged but will be inside the new layout -->
+          <div
+            id="gallery"
+            class="app-section hidden h-full flex flex-col space-y-4"
           >
+            <header
+              class="p-3 flex items-center justify-between shrink-0 rounded-lg border border-white/10 bg-black/20"
+            >
+              <h2 class="text-lg font-bold">Gallery</h2>
+              <button
+                id="import-gallery-btn"
+                class="font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-pink-dark)"
+              >
+                <i data-feather="plus-circle" class="w-5 h-5"></i> Import GIFs
+              </button>
+            </header>
             <div
-              id="canvas-container"
-              style="width: 1280px; aspect-ratio: 16/9; max-width: 100%"
+              id="gallery-grid"
+              class="flex-1 p-2 overflow-y-auto custom-scrollbar flex flex-wrap gap-4 items-start align-start"
             ></div>
-          </main>
-        </div>
+          </div>
 
-        <!-- Section: Gallery -->
-        <div id="gallery" class="app-section hidden h-full flex flex-col">
-          <header
-            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex items-center justify-between shrink-0"
-          >
-            <h2 class="text-lg font-bold">Image Gallery</h2>
-            <button
-              id="import-gallery-btn"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
-            >
-              <i data-feather="plus-circle" class="w-5 h-5"></i> Import GIFs
-            </button>
-          </header>
           <div
-            id="gallery-grid"
-            class="flex-1 p-6 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4"
-          ></div>
-        </div>
-
-        <!-- Section: Presets -->
-        <div id="presets" class="app-section hidden h-full flex flex-col">
-          <header
-            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex items-center justify-between shrink-0"
+            id="presets"
+            class="app-section hidden h-full flex flex-col space-y-4"
           >
-            <h2 class="text-lg font-bold">Layout Presets</h2>
-            <button
-              id="new-preset-btn"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+            <header
+              class="p-3 flex items-center justify-between shrink-0 rounded-lg border border-white/10 bg-black/20"
             >
-              <i data-feather="plus-circle" class="w-5 h-5"></i> New Preset
-            </button>
-          </header>
-          <div
-            id="presets-list"
-            class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-4"
-          ></div>
+              <h2 class="text-lg font-bold">Layout Presets</h2>
+              <button
+                id="new-preset-btn"
+                class="font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-pink-dark)"
+              >
+                <i data-feather="plus-circle" class="w-5 h-5"></i> New Preset
+              </button>
+            </header>
+            <div
+              id="presets-list"
+              class="flex-1 p-2 overflow-y-auto custom-scrollbar space-y-4"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
 
     <div id="toast" class="toast"></div>
-
     <div
       id="save-preset-modal"
       class="fixed inset-0 z-40 items-center justify-center hidden modal-backdrop"
@@ -218,9 +234,10 @@
           </button>
           <button
             id="confirm-save-preset-btn"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg"
+            class="px-4 py-2 text-white font-semibold rounded-lg"
+            style="background-color: var(--accent-pink)"
           >
-            Save
+            <span class="hover:opacity-80">Save</span>
           </button>
         </div>
       </div>
@@ -292,12 +309,8 @@
             const sectionId = button.dataset.section;
             Object.values(sections).forEach((s) => s.classList.add("hidden"));
             sections[sectionId].classList.remove("hidden");
-            navButtons.forEach((btn) => {
-              btn.classList.remove("bg-purple-600", "text-white");
-              btn.classList.add("text-zinc-400");
-            });
-            button.classList.add("bg-purple-600", "text-white");
-            button.classList.remove("text-zinc-400");
+            navButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
           });
         });
 
@@ -306,11 +319,10 @@
           appData.gallery.forEach((item) => {
             const div = document.createElement("div");
             div.className =
-              "relative aspect-square bg-zinc-800 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-purple-500 transition-all";
-            div.innerHTML = `<img src="${item.path}" class="w-full h-full object-contain"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><p class="text-white font-bold text-sm">Add to Editor</p></div>`;
+              "relative w-40 h-40  aspect-square bg-zinc-800/50 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-pink-400 transition-all";
+            div.innerHTML = `<img src="${item.path}" class="w-40 h-40 object-contain"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><p class="text-white font-bold text-sm">Add to Editor</p></div>`;
             div.addEventListener("click", () => {
               createDraggableItem(item.id);
-              showToast("Added image to editor.");
             });
             galleryGrid.appendChild(div);
           });
@@ -331,32 +343,37 @@
         function renderPresets() {
           presetsList.innerHTML = "";
           if (appData.presets.length === 0) {
-            presetsList.innerHTML = `<p class="text-zinc-500 text-center">No presets saved yet.</p>`;
+            presetsList.innerHTML = `<p class="text-zinc-500 text-center py-8">No presets saved yet.</p>`;
             return;
           }
           appData.presets.forEach((preset) => {
             const div = document.createElement("div");
             div.className =
-              "bg-zinc-800 p-4 rounded-lg border border-zinc-700 flex justify-between items-center";
-            div.innerHTML = `<div><h4 class="font-bold text-white">${preset.name}</h4><p class="text-sm text-zinc-400">${preset.description}</p></div><div class="flex gap-2"><button data-preset-id="${preset.id}" class="load-preset-btn px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">Load</button><button data-preset-id="${preset.id}" class="delete-preset-btn px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg">Delete</button></div>`;
+              "bg-black/20 p-4 rounded-lg border border-white/10 flex justify-between items-center";
+            div.innerHTML = `<div><h4 class="font-bold text-white">${
+              preset.name
+            }</h4><p class="text-sm text-zinc-400">${
+              preset.description || "No description"
+            }</p></div><div class="flex gap-2"><button data-preset-id="${
+              preset.id
+            }" class="load-preset-btn px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700/80 text-white text-sm font-semibold rounded-lg">Load</button><button data-preset-id="${
+              preset.id
+            }" class="delete-preset-btn px-3 py-1.5 bg-red-600/80 hover:bg-red-700/80 text-white text-sm font-semibold rounded-lg">Delete</button></div>`;
             presetsList.appendChild(div);
           });
         }
 
         presetsList.addEventListener("click", async (e) => {
+          const presetId = e.target.dataset.presetId;
           if (e.target.classList.contains("load-preset-btn")) {
-            const preset = appData.presets.find(
-              (p) => p.id === e.target.dataset.presetId
-            );
+            const preset = appData.presets.find((p) => p.id === presetId);
             if (preset) {
               loadPreset(preset);
               showToast(`Loaded preset: ${preset.name}`);
               document.querySelector('.nav-btn[data-section="editor"]').click();
             }
           } else if (e.target.classList.contains("delete-preset-btn")) {
-            appData.presets = appData.presets.filter(
-              (p) => p.id !== e.target.dataset.presetId
-            );
+            appData.presets = appData.presets.filter((p) => p.id !== presetId);
             await window.electronAPI.saveData(appData);
             renderPresets();
             showToast("Preset deleted.");
@@ -464,7 +481,7 @@
         function setCanvasSize(width, height) {
           if (!width || !height) return showToast("Invalid resolution.");
           canvasContainer.style.aspectRatio = `${width} / ${height}`;
-          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/18181b/a1a1aa?text=Editor+Canvas+${width}x${height}')`;
+          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/000000/a1a1aa?text=Editor+Canvas+${width}x${height}')`;
           showToast(`Canvas size: ${width}x${height}.`);
         }
 
@@ -482,9 +499,10 @@
           itemWrapper.dataset.rotation = "0";
           itemWrapper.style.top = "20px";
           itemWrapper.style.left = "20px";
-          itemWrapper.innerHTML = `<img src="${galleryItem.path}" /><div class="resize-handle"></div><div class="delete-handle">&times;</div><div class="rotate-handle">⟳</div>`;
+          itemWrapper.innerHTML = `<img src="${galleryItem.path}" /><div class="resize-handle"></div><div class="delete-handle">&times;</div><div class="rotate-handle"><i data-feather="refresh-cw"></i></div>`;
 
           canvasContainer.appendChild(itemWrapper);
+          feather.replace({ width: "12", height: "12" }); // Redraw feather icons
           itemWrapper.addEventListener("mousedown", startAction);
           itemWrapper
             .querySelector(".delete-handle")
@@ -499,7 +517,7 @@
         }
 
         function startAction(e) {
-          if (e.target.classList.contains("delete-handle")) return;
+          if (e.target.closest(".delete-handle")) return;
           e.stopPropagation();
           if (activeItem && activeItem !== e.currentTarget)
             activeItem.classList.remove("selected");
@@ -509,10 +527,9 @@
           initialX = e.clientX;
           initialY = e.clientY;
 
-          // NEW: Check for rotation handle
-          const isRotateHandle = e.target.classList.contains("rotate-handle");
+          const isRotateHandle = e.target.closest(".rotate-handle");
 
-          if (e.target.classList.contains("resize-handle")) {
+          if (e.target.closest(".resize-handle")) {
             currentAction = "resize";
             initialWidth = activeItem.offsetWidth;
           } else if (isRotateHandle) {
@@ -544,17 +561,14 @@
             const rect = activeItem.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-
             const startAngle =
               Math.atan2(initialY - centerY, initialX - centerX) *
               (180 / Math.PI);
             const currentAngle =
               Math.atan2(e.clientY - centerY, e.clientX - centerX) *
               (180 / Math.PI);
-
             const deltaAngle = currentAngle - startAngle;
             const newRotation = initialRotation + deltaAngle;
-
             activeItem.style.transform = `rotate(${newRotation}deg)`;
             activeItem.dataset.rotation = newRotation;
           }
