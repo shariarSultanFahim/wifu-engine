@@ -1,25 +1,78 @@
+:root {
+  --accent-pink: #e491a6;
+  --accent-pink-dark: #845763;
+  --accent-green-light: #92e4ba;
+  --accent-green-dark: #90c67f;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+}
+
 body {
   font-family: "Inter", sans-serif;
-  background-color: #1a1a1a;
-  color: #f0f0f0;
+  background-color: #18181b; /* A solid dark background */
+  color: var(--text-primary);
+  overflow: hidden;
 }
-.canvas-container {
+
+/* --- UI CHANGE: Glass Effect for the Main Wrapper --- */
+#app-wrapper {
+  background: rgba(39, 39, 42, 0.65); /* Darker, less transparent background */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-height: 100vh;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4f4f5a;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6f6f7a;
+}
+
+.sidebar-icon {
+  transition: all 0.2s ease-in-out;
+}
+.sidebar-icon:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.nav-btn.active {
+  background-color: var(--accent-pink);
+  color: white;
+}
+.nav-btn:not(.active) {
+  color: var(--text-secondary);
+}
+.nav-btn:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#canvas-container {
   position: relative;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 .overlay-item {
   position: absolute;
   cursor: grab;
   user-select: none;
   width: 200px;
   height: auto;
-  transition: transform 0.2s ease;
 }
 .overlay-item img {
   width: 100%;
@@ -31,48 +84,73 @@ body {
   cursor: grabbing;
 }
 .overlay-item.selected {
-  outline: 2px dashed #38bdf8; /* sky-400 */
+  outline: 2px dashed var(--accent-pink);
   z-index: 1000;
 }
+
 .resize-handle,
-.delete-handle {
+.delete-handle,
+.rotate-handle {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: #38bdf8;
-  border: 2px solid white;
-  border-radius: 50%;
   display: none;
   z-index: 1001;
 }
 .overlay-item.selected .resize-handle,
-.overlay-item.selected .delete-handle {
-  display: block;
+.overlay-item.selected .delete-handle,
+.overlay-item.selected .rotate-handle {
+  display: flex;
 }
-.resize-handle.br {
+
+.resize-handle {
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent-pink);
+  border: 2px solid white;
+  border-radius: 50%;
   bottom: -6px;
   right: -6px;
   cursor: nwse-resize;
 }
+
 .delete-handle {
   top: -8px;
   right: -8px;
   width: 20px;
   height: 20px;
-  background-color: #ef4444; /* red-500 */
+  background-color: #ef4444;
   cursor: pointer;
   z-index: 1002;
-  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: bold;
   color: white;
   line-height: 1;
+  border-radius: 50%;
 }
+
+.rotate-handle {
+  top: -8px;
+  left: -8px;
+  width: 20px;
+  height: 20px;
+  background-color: #f59e0b;
+  cursor: crosshair;
+  z-index: 1002;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+.rotate-handle svg {
+  width: 12px;
+  height: 12px;
+  color: white;
+}
+
 .toast {
   position: fixed;
-  bottom: 20px;
+  bottom: -100px;
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 24px;
@@ -80,13 +158,14 @@ body {
   color: white;
   border-radius: 9999px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  visibility: hidden;
+  z-index: 5000;
+  transition: bottom 0.5s ease-in-out;
 }
 .toast.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  bottom: 20px;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
 }

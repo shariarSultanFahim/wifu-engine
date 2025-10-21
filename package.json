@@ -1,6 +1,6 @@
 {
   "name": "wifu-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple wifu overlay creator for Windows / MacOS / Linux using Electron.",
   "main": "main.js",
   "scripts": {

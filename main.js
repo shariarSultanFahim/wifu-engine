@@ -1,33 +1,55 @@
-// main.js
-
-// Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, screen, Tray, Menu } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  screen,
+  Tray,
+  Menu,
+  dialog,
+} = require("electron");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
-// Keep a global reference of the window objects to prevent them from being garbage collected.
 let mainWindow;
 let overlayWindow;
 let tray = null;
-let tempOverlayFile = null; // Variable to hold the path to the temporary file
+let tempOverlayFile = null;
+
+const userDataPath = app.getPath("userData");
+const galleryPath = path.join(userDataPath, "gallery");
+const dataFilePath = path.join(userDataPath, "data.json");
+
+function initializeAppData() {
+  if (!fs.existsSync(galleryPath)) {
+    fs.mkdirSync(galleryPath, { recursive: true });
+  }
+  if (!fs.existsSync(dataFilePath)) {
+    fs.writeFileSync(
+      dataFilePath,
+      JSON.stringify({ gallery: [], presets: [] }, null, 2)
+    );
+  }
+}
 
 const createWindow = () => {
-  // Create the main application window.
+  // --- UI CHANGE: Reverted to default window frame ---
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
+    // frame: true, // Default is true, so we can remove the frame: false
+    // transparent: false, // Default is false
     webPreferences: {
-      // Attach the preload script to expose APIs to the renderer
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "icon.png"), // Set window icon
+    icon: path.join(__dirname, "icon.png"),
   });
 
-  // Load the index.html of the app.
   mainWindow.loadFile("index.html");
 
-  // Instead of quitting, hide the window when the user clicks 'close'.
-  // The app can be fully closed from the system tray context menu.
+  // --- UI CHANGE: Remove custom menu bar ---
+  mainWindow.setMenuBarVisibility(false);
+
   mainWindow.on("close", (event) => {
     if (!app.isQuitting) {
       event.preventDefault();
@@ -36,20 +58,15 @@ const createWindow = () => {
   });
 };
 
-// Function to create the transparent overlay window
-const createOverlay = (htmlContent) => {
-  if (overlayWindow) {
-    overlayWindow.close();
-  }
-
-  // Write the overlay HTML to a temporary file.
+// Internal function to handle the actual creation of the overlay window
+const _createActualOverlay = (htmlContent) => {
   try {
     const tempDir = app.getPath("temp");
     tempOverlayFile = path.join(tempDir, `overlay-${Date.now()}.html`);
     fs.writeFileSync(tempOverlayFile, htmlContent);
   } catch (error) {
     console.error("Failed to write temporary overlay file:", error);
-    return; // Stop if we can't create the file
+    return;
   }
 
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -64,37 +81,26 @@ const createOverlay = (htmlContent) => {
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
-    show: false, // <-- FIX: Create the window but keep it hidden initially.
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true },
   });
 
+  overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setIgnoreMouseEvents(true);
-
   overlayWindow.loadFile(tempOverlayFile);
 
-  // FIX: Use the 'ready-to-show' event. This event fires only when the
-  // webpage has been rendered. Showing the window here prevents visual
-  // glitches and is more reliable for transparent windows in a built app.
   overlayWindow.once("ready-to-show", () => {
-    overlayWindow.show();
+    if (overlayWindow) {
+      overlayWindow.show();
+    }
   });
 
   overlayWindow.on("closed", () => {
-    // Clean up the temporary file and clear the window reference.
-    if (tempOverlayFile) {
+    if (tempOverlayFile && fs.existsSync(tempOverlayFile)) {
       try {
-        if (fs.existsSync(tempOverlayFile)) {
-          fs.unlinkSync(tempOverlayFile);
-        }
+        fs.unlinkSync(tempOverlayFile);
       } catch (error) {
-        console.error(
-          "Failed to delete temporary overlay file:",
-          tempOverlayFile,
-          error
-        );
+        console.error("Failed to delete temp overlay file:", error);
       }
     }
     tempOverlayFile = null;
@@ -102,29 +108,49 @@ const createOverlay = (htmlContent) => {
   });
 };
 
-app.whenReady().then(() => {
-  createWindow();
+const createOverlay = (htmlContent) => {
+  if (overlayWindow) {
+    overlayWindow.once("closed", () => {
+      _createActualOverlay(htmlContent);
+    });
+    overlayWindow.close();
+  } else {
+    _createActualOverlay(htmlContent);
+  }
+};
 
+app.whenReady().then(() => {
+  initializeAppData();
+  createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-});
-
-ipcMain.handle("get-screen-size", () => {
-  const primaryDisplay = screen.getPrimaryDisplay();
-  return primaryDisplay.size;
 });
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-ipcMain.on("apply-overlay", (event, items) => {
-  //Close existing overlay if any
-  if (overlayWindow) {
-    overlayWindow.close();
+app.on("before-quit", () => {
+  if (tempOverlayFile && fs.existsSync(tempOverlayFile)) {
+    fs.unlinkSync(tempOverlayFile);
   }
+  if (tray) {
+    tray.destroy();
+  }
+});
 
+// --- UI CHANGE: Removed IPC Handlers for custom controls ---
+// ipcMain.on('minimize-window', ...
+// ipcMain.on('maximize-window', ...
+// ipcMain.on('close-window', ...
+
+ipcMain.handle("get-screen-size", () => {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  return primaryDisplay.size;
+});
+
+ipcMain.on("apply-overlay", (event, items) => {
   const overlayHtmlContent = items
     .map((item) => {
       try {
@@ -132,8 +158,8 @@ ipcMain.on("apply-overlay", (event, items) => {
         const imageBase64 = imageBuffer.toString("base64");
         const mimeType = `image/${path.extname(item.path).slice(1) || "png"}`;
         const imageSrc = `data:${mimeType};base64,${imageBase64}`;
-
-        return `<img src="${imageSrc}" class="overlay-item" style="left: ${item.left}%; top: ${item.top}%; width: ${item.width}px; height: ${item.height}px;">`;
+        const transform = `transform: rotate(${item.rotation || 0}deg);`;
+        return `<img src="${imageSrc}" style="position: absolute; left: ${item.left}%; top: ${item.top}%; width: ${item.width}px; height: ${item.height}px; ${transform}">`;
       } catch (error) {
         console.error(
           "Failed to read image file for overlay:",
@@ -145,87 +171,81 @@ ipcMain.on("apply-overlay", (event, items) => {
     })
     .join("");
 
-  if (!overlayHtmlContent.trim()) {
-    console.error(
-      "Overlay content is empty. No images were processed successfully."
-    );
-    return;
-  }
+  if (!overlayHtmlContent.trim()) return;
 
-  const fullHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body { margin: 0; overflow: hidden; background-color: transparent; }
-          .overlay-item {
-              position: absolute;
-              user-select: none;
-          }
-        </style>
-      </head>
-      <body>${overlayHtmlContent}</body>
-    </html>
-  `;
+  const fullHtml = `<!DOCTYPE html><html><head><style>body{margin:0; overflow:hidden;}</style></head><body>${overlayHtmlContent}</body></html>`;
   createOverlay(fullHtml);
 });
 
 ipcMain.on("remove-overlay", () => {
-  if (overlayWindow) {
-    // Calling .close() will trigger the 'closed' event where all cleanup happens.
-    overlayWindow.close();
-  }
+  if (overlayWindow) overlayWindow.close();
 });
 
 ipcMain.on("minimize-to-tray", () => {
   if (!tray) {
     const iconPath = path.join(__dirname, "icon.png");
-    try {
-      tray = new Tray(iconPath);
-
-      const contextMenu = Menu.buildFromTemplate([
-        {
-          label: "Show App",
-          click: () => {
-            mainWindow.show();
-          },
+    tray = new Tray(iconPath);
+    const contextMenu = Menu.buildFromTemplate([
+      { label: "Show App", click: () => mainWindow.show() },
+      {
+        label: "Quit",
+        click: () => {
+          app.isQuitting = true;
+          app.quit();
         },
-        {
-          label: "Quit",
-          click: () => {
-            app.isQuitting = true;
-            app.quit();
-          },
-        },
-      ]);
-
-      tray.setToolTip("Overlay Creator");
-      tray.setContextMenu(contextMenu);
-
-      tray.on("click", () => {
-        mainWindow.show();
-      });
-    } catch (error) {
-      console.error("Failed to create system tray icon.", error);
-      console.error("Please ensure 'icon.png' exists in the project root.");
-    }
+      },
+    ]);
+    tray.setToolTip("Wifu Engine");
+    tray.setContextMenu(contextMenu);
+    tray.on("click", () => mainWindow.show());
   }
   mainWindow.hide();
 });
 
-app.on("before-quit", () => {
-  // Also clean up temp file on quit if overlay is active
-  if (tempOverlayFile && fs.existsSync(tempOverlayFile)) {
+ipcMain.handle("load-data", async () => {
+  try {
+    const data = fs.readFileSync(dataFilePath, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Failed to load data file:", error);
+    return { gallery: [], presets: [] };
+  }
+});
+
+ipcMain.handle("save-data", async (event, data) => {
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to save data file:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("import-gallery-files", async () => {
+  const { filePaths } = await dialog.showOpenDialog({
+    title: "Import GIFs",
+    properties: ["openFile", "multiSelections"],
+    filters: [{ name: "Images", extensions: ["gif", "png", "jpg", "jpeg"] }],
+  });
+
+  if (!filePaths || filePaths.length === 0) {
+    return [];
+  }
+
+  const importedFiles = [];
+  for (const filePath of filePaths) {
     try {
-      fs.unlinkSync(tempOverlayFile);
+      const fileName = `${Date.now()}-${path.basename(filePath)}`;
+      const newPath = path.join(galleryPath, fileName);
+      fs.copyFileSync(filePath, newPath);
+      importedFiles.push({
+        id: `gallery_${crypto.randomUUID()}`,
+        path: newPath,
+      });
     } catch (error) {
-      console.error("Could not clean up temp file on quit:", error);
-      return;
-    } finally {
-      if (tray) {
-        tray.destroy();
-      }
-      tempOverlayFile = null;
+      console.error(`Failed to copy file: ${filePath}`, error);
     }
   }
+  return importedFiles;
 });

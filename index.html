@@ -3,312 +3,574 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Windows 11 Overlay Creator</title>
+    <title>Wifu Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body
-    class="bg-zinc-900 flex flex-col items-center justify-center min-h-screen p-4 md:p-8 transition-colors duration-300"
-  >
-    <div id="app-container" class="w-full max-w-7xl">
-      <!-- Header Controls -->
-      <header
-        class="controls bg-zinc-800/50 backdrop-blur-xl p-4 rounded-xl mb-6 border border-zinc-700 shadow-lg flex flex-wrap items-center justify-between gap-4"
-      >
-        <h1 class="text-xl font-bold text-white">Overlay Creator</h1>
-
-        <div class="flex flex-wrap items-center gap-4">
-          <!-- Canvas Size Controls -->
-          <div class="flex items-center gap-4">
-            <button
-              id="get-screen-size-btn"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
-            >
-              Use Screen Size
-            </button>
-            <div class="flex items-center gap-2">
-              <input
-                type="number"
-                id="custom-width"
-                placeholder="Width"
-                class="bg-zinc-700 border border-zinc-600 text-white text-sm rounded-lg w-20 p-2.5"
-              />
-              <span class="text-zinc-400">x</span>
-              <input
-                type="number"
-                id="custom-height"
-                placeholder="Height"
-                class="bg-zinc-700 border border-zinc-600 text-white text-sm rounded-lg w-20 p-2.5"
-              />
-              <button
-                id="apply-custom-size-btn"
-                class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-2">
-            <button
-              id="add-image-btn"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Add Image/GIF
-            </button>
-            <input
-              type="file"
-              id="image-upload"
-              class="hidden"
-              accept="image/*"
-              multiple
-            />
-
-            <button
-              id="apply-overlay-btn"
-              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Apply as Overlay
-            </button>
-            <button
-              id="remove-overlay-btn"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Remove Overlay
-            </button>
-            <button
-              id="minimize-to-tray-btn"
-              class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Minimize to Tray
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <!-- Main Canvas Area -->
-      <main class="w-full flex justify-center">
-        <div
-          id="canvas-container"
-          class="canvas-container"
-          style="
-            background-image: url('https://placehold.co/1920x1080/000000/FFFFFF?text=Windows+Desktop+Background');
-            width: 1280px;
-            aspect-ratio: 16/9;
-            max-width: 100%;
-          "
+  <body class="p-2">
+    <div
+      id="app-wrapper"
+      class="h-full w-full rounded-lg overflow-hidden flex flex-col"
+    >
+      <div class="flex h-[100vh] overflow-hidden">
+        <!-- Vertical Sidebar -->
+        <nav
+          class="w-20 h-full bg-black/20 flex flex-col items-center py-4 space-y-8 shrink-0 border-r border-white/10"
         >
-          <!-- Draggable items will be appended here -->
+          <div style="color: var(--accent-pink)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
+              ></path>
+            </svg>
+          </div>
+          <div class="flex flex-col space-y-6">
+            <button
+              data-section="editor"
+              class="nav-btn p-3 rounded-lg active"
+              title="Editor"
+            >
+              <i data-feather="edit" class="sidebar-icon"></i>
+            </button>
+            <button
+              data-section="gallery"
+              class="nav-btn p-3 rounded-lg"
+              title="Gallery"
+            >
+              <i data-feather="image" class="sidebar-icon"></i>
+            </button>
+            <button
+              data-section="presets"
+              class="nav-btn p-3 rounded-lg"
+              title="Presets"
+            >
+              <i data-feather="save" class="sidebar-icon"></i>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+          <!-- Section: Editor -->
+          <div
+            id="editor"
+            class="app-section flex flex-col h-full overflow-hidden space-y-4"
+          >
+            <header
+              class="bg-black/20 p-3 shadow-lg flex flex-wrap items-center justify-between gap-3 shrink-0 rounded-lg border border-white/10"
+            >
+              <button
+                id="save-preset-btn"
+                class="font-bold py-2 px-3 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-green-dark)"
+              >
+                <i data-feather="save" class="w-4 h-4"></i> Save Preset
+              </button>
+              <div class="flex items-center gap-4">
+                <button
+                  id="get-screen-size-btn"
+                  class="bg-indigo-600/80 hover:bg-indigo-700/80 text-white text-sm font-bold py-2 px-3 rounded-lg"
+                >
+                  Screen Size
+                </button>
+                <div>
+                  <input
+                    type="number"
+                    id="custom-width"
+                    placeholder="W"
+                    class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg w-20 p-2"
+                  />
+                  <span class="text-zinc-400 mx-1">x</span>
+                  <input
+                    type="number"
+                    id="custom-height"
+                    placeholder="H"
+                    class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg w-20 p-2"
+                  />
+                  <button
+                    id="apply-custom-size-btn"
+                    class="bg-teal-600/80 hover:bg-teal-700/80 text-white text-sm font-bold py-2 px-3 rounded-lg ml-2"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  id="apply-overlay-btn"
+                  class="font-bold py-2 px-4 rounded-lg text-white"
+                  style="background-color: var(--accent-pink)"
+                >
+                  <span class="hover:opacity-80">Apply Overlay</span>
+                </button>
+                <button
+                  id="remove-overlay-btn"
+                  class="bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Remove
+                </button>
+                <button
+                  id="minimize-to-tray-btn"
+                  class="bg-gray-600/80 hover:bg-gray-700/80 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Tray
+                </button>
+              </div>
+            </header>
+            <main
+              class="flex-1 flex justify-center items-center overflow-auto min-h-0"
+            >
+              <div
+                id="canvas-container"
+                style="width: 1280px; aspect-ratio: 16/9; max-width: 100%"
+              ></div>
+            </main>
+          </div>
+
+          <!-- Other sections remain unchanged but will be inside the new layout -->
+          <div
+            id="gallery"
+            class="app-section hidden h-full flex flex-col space-y-4"
+          >
+            <header
+              class="p-3 flex items-center justify-between shrink-0 rounded-lg border border-white/10 bg-black/20"
+            >
+              <h2 class="text-lg font-bold">Gallery</h2>
+              <button
+                id="import-gallery-btn"
+                class="font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-pink-dark)"
+              >
+                <i data-feather="plus-circle" class="w-5 h-5"></i> Import GIFs
+              </button>
+            </header>
+            <div
+              id="gallery-grid"
+              class="flex-1 p-2 overflow-y-auto custom-scrollbar flex flex-wrap gap-4 items-start align-start"
+            ></div>
+          </div>
+
+          <div
+            id="presets"
+            class="app-section hidden h-full flex flex-col space-y-4"
+          >
+            <header
+              class="p-3 flex items-center justify-between shrink-0 rounded-lg border border-white/10 bg-black/20"
+            >
+              <h2 class="text-lg font-bold">Layout Presets</h2>
+              <button
+                id="new-preset-btn"
+                class="font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-white"
+                style="background-color: var(--accent-pink-dark)"
+              >
+                <i data-feather="plus-circle" class="w-5 h-5"></i> New Preset
+              </button>
+            </header>
+            <div
+              id="presets-list"
+              class="flex-1 p-2 overflow-y-auto custom-scrollbar space-y-4"
+            ></div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
+    <div
+      id="save-preset-modal"
+      class="fixed inset-0 z-40 items-center justify-center hidden modal-backdrop"
+    >
+      <div
+        class="bg-zinc-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-zinc-700"
+      >
+        <h3 class="text-lg font-bold mb-4">Save Preset</h3>
+        <div class="space-y-4">
+          <div>
+            <label
+              for="preset-name"
+              class="block text-sm font-medium text-zinc-300"
+              >Preset Name</label
+            >
+            <input
+              type="text"
+              id="preset-name"
+              class="mt-1 block w-full bg-zinc-700 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+          <div>
+            <label
+              for="preset-description"
+              class="block text-sm font-medium text-zinc-300"
+              >Description</label
+            >
+            <textarea
+              id="preset-description"
+              rows="3"
+              class="mt-1 block w-full bg-zinc-700 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+            ></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            id="cancel-save-preset-btn"
+            class="px-4 py-2 bg-zinc-600 hover:bg-zinc-700 text-white font-semibold rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-save-preset-btn"
+            class="px-4 py-2 text-white font-semibold rounded-lg"
+            style="background-color: var(--accent-pink)"
+          >
+            <span class="hover:opacity-80">Save</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script>
+      feather.replace();
+    </script>
+    <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // Element references
+        let appData = { gallery: [], presets: [] };
+        let activeItem = null;
+        let currentAction = null;
+        let initialX, initialY, initialWidth, offsetX, offsetY, initialRotation;
+        let currentPresetId = null;
+
+        const canvasContainer = document.getElementById("canvas-container");
+        const toast = document.getElementById("toast");
+        const sections = {
+          editor: document.getElementById("editor"),
+          gallery: document.getElementById("gallery"),
+          presets: document.getElementById("presets"),
+        };
+        const navButtons = document.querySelectorAll(".nav-btn");
         const getScreenSizeBtn = document.getElementById("get-screen-size-btn");
         const customWidthInput = document.getElementById("custom-width");
         const customHeightInput = document.getElementById("custom-height");
         const applyCustomSizeBtn = document.getElementById(
           "apply-custom-size-btn"
         );
-        const addImageBtn = document.getElementById("add-image-btn");
-        const imageUpload = document.getElementById("image-upload");
         const applyOverlayBtn = document.getElementById("apply-overlay-btn");
         const removeOverlayBtn = document.getElementById("remove-overlay-btn");
         const minimizeToTrayBtn = document.getElementById(
           "minimize-to-tray-btn"
         );
-        const canvasContainer = document.getElementById("canvas-container");
-        const toast = document.getElementById("toast");
+        const savePresetBtn = document.getElementById("save-preset-btn");
+        const importGalleryBtn = document.getElementById("import-gallery-btn");
+        const galleryGrid = document.getElementById("gallery-grid");
+        const newPresetBtn = document.getElementById("new-preset-btn");
+        const presetsList = document.getElementById("presets-list");
+        const savePresetModal = document.getElementById("save-preset-modal");
+        const presetNameInput = document.getElementById("preset-name");
+        const presetDescInput = document.getElementById("preset-description");
+        const cancelSavePresetBtn = document.getElementById(
+          "cancel-save-preset-btn"
+        );
+        const confirmSavePresetBtn = document.getElementById(
+          "confirm-save-preset-btn"
+        );
 
-        let activeItem = null;
-        let currentAction = null; // 'drag' or 'resize'
-        let initialX, initialY, initialWidth, offsetX, offsetY;
+        async function initialize() {
+          if (window.electronAPI) {
+            appData = await window.electronAPI.loadData();
+            renderGallery();
+            renderPresets();
+          }
+          setCanvasSize(1920, 1080);
+        }
+        initialize();
 
         function showToast(message) {
           toast.textContent = message;
           toast.classList.add("show");
-          setTimeout(() => {
-            toast.classList.remove("show");
-          }, 3000);
+          setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        navButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const sectionId = button.dataset.section;
+            Object.values(sections).forEach((s) => s.classList.add("hidden"));
+            sections[sectionId].classList.remove("hidden");
+            navButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+          });
+        });
+
+        function renderGallery() {
+          galleryGrid.innerHTML = "";
+          appData.gallery.forEach((item) => {
+            const div = document.createElement("div");
+            div.className =
+              "relative w-40 h-40  aspect-square bg-zinc-800/50 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-pink-400 transition-all";
+            div.innerHTML = `<img src="${item.path}" class="w-40 h-40 object-contain"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><p class="text-white font-bold text-sm">Add to Editor</p></div>`;
+            div.addEventListener("click", () => {
+              createDraggableItem(item.id);
+            });
+            galleryGrid.appendChild(div);
+          });
+        }
+
+        importGalleryBtn.addEventListener("click", async () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
+          const newFiles = await window.electronAPI.importGalleryFiles();
+          if (newFiles && newFiles.length > 0) {
+            appData.gallery.push(...newFiles);
+            await window.electronAPI.saveData(appData);
+            renderGallery();
+            showToast(`Imported ${newFiles.length} new image(s).`);
+          }
+        });
+
+        function renderPresets() {
+          presetsList.innerHTML = "";
+          if (appData.presets.length === 0) {
+            presetsList.innerHTML = `<p class="text-zinc-500 text-center py-8">No presets saved yet.</p>`;
+            return;
+          }
+          appData.presets.forEach((preset) => {
+            const div = document.createElement("div");
+            div.className =
+              "bg-black/20 p-4 rounded-lg border border-white/10 flex justify-between items-center";
+            div.innerHTML = `<div><h4 class="font-bold text-white">${
+              preset.name
+            }</h4><p class="text-sm text-zinc-400">${
+              preset.description || "No description"
+            }</p></div><div class="flex gap-2"><button data-preset-id="${
+              preset.id
+            }" class="load-preset-btn px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700/80 text-white text-sm font-semibold rounded-lg">Load</button><button data-preset-id="${
+              preset.id
+            }" class="delete-preset-btn px-3 py-1.5 bg-red-600/80 hover:bg-red-700/80 text-white text-sm font-semibold rounded-lg">Delete</button></div>`;
+            presetsList.appendChild(div);
+          });
+        }
+
+        presetsList.addEventListener("click", async (e) => {
+          const presetId = e.target.dataset.presetId;
+          if (e.target.classList.contains("load-preset-btn")) {
+            const preset = appData.presets.find((p) => p.id === presetId);
+            if (preset) {
+              loadPreset(preset);
+              showToast(`Loaded preset: ${preset.name}`);
+              document.querySelector('.nav-btn[data-section="editor"]').click();
+            }
+          } else if (e.target.classList.contains("delete-preset-btn")) {
+            appData.presets = appData.presets.filter((p) => p.id !== presetId);
+            await window.electronAPI.saveData(appData);
+            renderPresets();
+            showToast("Preset deleted.");
+          }
+        });
+
+        newPresetBtn.addEventListener("click", () => {
+          clearCanvas();
+          currentPresetId = null;
+          document.querySelector('.nav-btn[data-section="editor"]').click();
+          showToast("Started a new preset.");
+        });
+
+        function loadPreset(preset) {
+          clearCanvas();
+          currentPresetId = preset.id;
+          preset.items.forEach((item) => {
+            const galleryItem = appData.gallery.find(
+              (g) => g.id === item.galleryId
+            );
+            if (galleryItem) {
+              const el = createDraggableItem(item.galleryId, false);
+              el.style.left = `${item.left}%`;
+              el.style.top = `${item.top}%`;
+              el.style.width = `${item.width}px`;
+              el.style.height = `${item.height}px`;
+              const rotation = item.rotation || 0;
+              el.dataset.rotation = rotation;
+              el.style.transform = `rotate(${rotation}deg)`;
+            }
+          });
+        }
+
+        savePresetBtn.addEventListener("click", () => {
+          const items = Array.from(
+            canvasContainer.querySelectorAll(".overlay-item")
+          );
+          if (items.length === 0)
+            return showToast("Cannot save an empty preset.");
+          const existingPreset = currentPresetId
+            ? appData.presets.find((p) => p.id === currentPresetId)
+            : null;
+          if (existingPreset) {
+            saveOrUpdatePreset(currentPresetId);
+          } else {
+            presetNameInput.value = "";
+            presetDescInput.value = "";
+            savePresetModal.classList.remove("hidden");
+            savePresetModal.classList.add("flex");
+          }
+        });
+
+        cancelSavePresetBtn.addEventListener("click", () => {
+          savePresetModal.classList.add("hidden");
+          savePresetModal.classList.remove("flex");
+        });
+
+        confirmSavePresetBtn.addEventListener("click", () =>
+          saveOrUpdatePreset()
+        );
+
+        async function saveOrUpdatePreset(idToUpdate = null) {
+          const canvasRect = canvasContainer.getBoundingClientRect();
+          const itemsToSave = Array.from(
+            canvasContainer.querySelectorAll(".overlay-item")
+          ).map((item) => ({
+            galleryId: item.dataset.galleryId,
+            left: (item.offsetLeft / canvasRect.width) * 100,
+            top: (item.offsetTop / canvasRect.height) * 100,
+            width: item.offsetWidth,
+            height: item.offsetHeight,
+            rotation: parseFloat(item.dataset.rotation) || 0,
+          }));
+
+          if (idToUpdate) {
+            const presetIndex = appData.presets.findIndex(
+              (p) => p.id === idToUpdate
+            );
+            if (presetIndex > -1) {
+              appData.presets[presetIndex].items = itemsToSave;
+              showToast(
+                `Preset '${appData.presets[presetIndex].name}' updated.`
+              );
+            }
+          } else {
+            const name = presetNameInput.value.trim();
+            if (!name) return showToast("Preset name is required.");
+            const newPreset = {
+              id: `preset_${Date.now()}`,
+              name,
+              description: presetDescInput.value.trim(),
+              items: itemsToSave,
+            };
+            appData.presets.push(newPreset);
+            currentPresetId = newPreset.id;
+            showToast(`Preset '${name}' saved.`);
+          }
+
+          await window.electronAPI.saveData(appData);
+          renderPresets();
+          savePresetModal.classList.add("hidden");
+          savePresetModal.classList.remove("flex");
         }
 
         function setCanvasSize(width, height) {
-          if (!width || !height || width <= 0 || height <= 0) {
-            showToast("Invalid resolution provided.");
-            return;
-          }
+          if (!width || !height) return showToast("Invalid resolution.");
           canvasContainer.style.aspectRatio = `${width} / ${height}`;
-          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/1e293b/94a3b8?text=Simulated+Desktop+${width}x${height}')`;
-          showToast(`Canvas size set to ${width}x${height}.`);
+          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/000000/a1a1aa?text=Editor+Canvas+${width}x${height}')`;
+          showToast(`Canvas size: ${width}x${height}.`);
         }
 
-        setCanvasSize(1920, 1080);
+        function clearCanvas() {
+          canvasContainer.innerHTML = "";
+        }
 
-        getScreenSizeBtn.addEventListener("click", async () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.getScreenSize === "function"
-          ) {
-            try {
-              const { width, height } =
-                await window.electronAPI.getScreenSize();
-              setCanvasSize(width, height);
-              customWidthInput.value = width;
-              customHeightInput.value = height;
-            } catch (error) {
-              showToast("Could not get screen size.");
-              console.error("Error getting screen size:", error);
-            }
-          } else {
-            showToast("This feature is only available in the desktop app.");
-          }
-        });
+        function createDraggableItem(galleryId, showCreationToast = true) {
+          const galleryItem = appData.gallery.find((g) => g.id === galleryId);
+          if (!galleryItem) return null;
 
-        applyCustomSizeBtn.addEventListener("click", () => {
-          const width = parseInt(customWidthInput.value, 10);
-          const height = parseInt(customHeightInput.value, 10);
-          setCanvasSize(width, height);
-        });
+          const itemWrapper = document.createElement("div");
+          itemWrapper.className = "overlay-item";
+          itemWrapper.dataset.galleryId = galleryId;
+          itemWrapper.dataset.rotation = "0";
+          itemWrapper.style.top = "20px";
+          itemWrapper.style.left = "20px";
+          itemWrapper.innerHTML = `<img src="${galleryItem.path}" /><div class="resize-handle"></div><div class="delete-handle">&times;</div><div class="rotate-handle"><i data-feather="refresh-cw"></i></div>`;
 
-        canvasContainer.addEventListener("mousedown", (e) => {
-          if (e.target === canvasContainer) {
-            if (activeItem) {
-              activeItem.classList.remove("selected");
-              activeItem = null;
-            }
-          }
-        });
-
-        addImageBtn.addEventListener("click", () => imageUpload.click());
-        imageUpload.addEventListener("change", (event) => {
-          if (event.target.files) {
-            Array.from(event.target.files).forEach((file) => {
-              // FIX 1: Pass the file object to be processed
-              createDraggableItem(file);
-            });
-            event.target.value = null; // Reset file input
-          }
-        });
-
-        function createDraggableItem(file) {
-          // The file object from the input contains the absolute path we need for the main process
-          if (!file.path) {
-            showToast(
-              "Could not get file path. This may not work in a web browser."
-            );
-            return;
-          }
-
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const itemWrapper = document.createElement("div");
-            itemWrapper.className = "overlay-item";
-            itemWrapper.style.top = "20px";
-            itemWrapper.style.left = "20px";
-
-            // FIX 1: Store the absolute file path on a data attribute
-            itemWrapper.dataset.filePath = file.path;
-
-            const img = document.createElement("img");
-            img.src = e.target.result; // Use data URL for local preview
-
-            const resizeHandle = document.createElement("div");
-            resizeHandle.className = "resize-handle br";
-
-            const deleteHandle = document.createElement("div");
-            deleteHandle.className = "delete-handle";
-            deleteHandle.innerHTML = "&times;";
-
-            deleteHandle.addEventListener("click", (e) => {
+          canvasContainer.appendChild(itemWrapper);
+          feather.replace({ width: "12", height: "12" }); // Redraw feather icons
+          itemWrapper.addEventListener("mousedown", startAction);
+          itemWrapper
+            .querySelector(".delete-handle")
+            .addEventListener("click", (e) => {
               e.stopPropagation();
-              canvasContainer.removeChild(itemWrapper);
-              if (activeItem === itemWrapper) {
-                activeItem = null;
-              }
+              itemWrapper.remove();
               showToast("Item deleted.");
             });
 
-            itemWrapper.appendChild(img);
-            itemWrapper.appendChild(resizeHandle);
-            itemWrapper.appendChild(deleteHandle);
-            canvasContainer.appendChild(itemWrapper);
-
-            itemWrapper.addEventListener("mousedown", startAction);
-            showToast("Added new item to the canvas!");
-          };
-          reader.readAsDataURL(file);
+          if (showCreationToast) showToast("Added item to the canvas!");
+          return itemWrapper;
         }
 
         function startAction(e) {
+          if (e.target.closest(".delete-handle")) return;
           e.stopPropagation();
-          if (e.target.classList.contains("delete-handle")) return;
-
-          if (activeItem && activeItem !== e.currentTarget) {
+          if (activeItem && activeItem !== e.currentTarget)
             activeItem.classList.remove("selected");
-          }
 
           activeItem = e.currentTarget;
           activeItem.classList.add("selected");
-
           initialX = e.clientX;
           initialY = e.clientY;
 
-          if (e.target.classList.contains("resize-handle")) {
+          const isRotateHandle = e.target.closest(".rotate-handle");
+
+          if (e.target.closest(".resize-handle")) {
             currentAction = "resize";
             initialWidth = activeItem.offsetWidth;
+          } else if (isRotateHandle) {
+            currentAction = "rotate";
+            initialRotation = parseFloat(activeItem.dataset.rotation) || 0;
           } else {
             currentAction = "drag";
             offsetX = e.clientX - activeItem.getBoundingClientRect().left;
             offsetY = e.clientY - activeItem.getBoundingClientRect().top;
           }
-
           document.addEventListener("mousemove", performAction);
           document.addEventListener("mouseup", endAction);
         }
 
         function performAction(e) {
-          if (!activeItem || !currentAction) return;
-
+          if (!activeItem) return;
+          const canvasRect = canvasContainer.getBoundingClientRect();
           if (currentAction === "drag") {
-            const canvasRect = canvasContainer.getBoundingClientRect();
             let x = e.clientX - canvasRect.left - offsetX;
             let y = e.clientY - canvasRect.top - offsetY;
-
-            const visibleMargin = 20;
-            x = Math.max(
-              -activeItem.offsetWidth + visibleMargin,
-              Math.min(x, canvasRect.width - visibleMargin)
-            );
-            y = Math.max(
-              -activeItem.offsetHeight + visibleMargin,
-              Math.min(y, canvasRect.height - visibleMargin)
-            );
-
             activeItem.style.left = `${x}px`;
             activeItem.style.top = `${y}px`;
           } else if (currentAction === "resize") {
             const dx = e.clientX - initialX;
-            const img = activeItem.querySelector("img");
-            if (!img.naturalWidth || !img.naturalHeight) return;
-
-            const aspectRatio = img.naturalWidth / img.naturalHeight;
-            const newWidth = initialWidth + dx;
-            const newHeight = newWidth / aspectRatio;
-
-            if (newWidth > 20) {
-              activeItem.style.width = `${newWidth}px`;
-              activeItem.style.height = `${newHeight}px`;
-            }
+            const newWidth = Math.max(20, initialWidth + dx);
+            activeItem.style.width = `${newWidth}px`;
+            activeItem.style.height = "auto";
+          } else if (currentAction === "rotate") {
+            const rect = activeItem.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const startAngle =
+              Math.atan2(initialY - centerY, initialX - centerX) *
+              (180 / Math.PI);
+            const currentAngle =
+              Math.atan2(e.clientY - centerY, e.clientX - centerX) *
+              (180 / Math.PI);
+            const deltaAngle = currentAngle - startAngle;
+            const newRotation = initialRotation + deltaAngle;
+            activeItem.style.transform = `rotate(${newRotation}deg)`;
+            activeItem.dataset.rotation = newRotation;
           }
         }
 
@@ -318,58 +580,64 @@
           document.removeEventListener("mouseup", endAction);
         }
 
+        canvasContainer.addEventListener("mousedown", (e) => {
+          if (e.target === canvasContainer && activeItem) {
+            activeItem.classList.remove("selected");
+            activeItem = null;
+          }
+        });
+
+        getScreenSizeBtn.addEventListener("click", async () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
+          const { width, height } = await window.electronAPI.getScreenSize();
+          setCanvasSize(width, height);
+          customWidthInput.value = width;
+          customHeightInput.value = height;
+        });
+
+        applyCustomSizeBtn.addEventListener("click", () => {
+          setCanvasSize(
+            parseInt(customWidthInput.value),
+            parseInt(customHeightInput.value)
+          );
+        });
+
         applyOverlayBtn.addEventListener("click", () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
           const canvasRect = canvasContainer.getBoundingClientRect();
           const items = Array.from(
             canvasContainer.querySelectorAll(".overlay-item")
-          ).map((item) => {
-            return {
-              // FIX 1: Send the stored file path instead of the base64 src
-              path: item.dataset.filePath,
-              left: (item.offsetLeft / canvasRect.width) * 100,
-              top: (item.offsetTop / canvasRect.height) * 100,
-              width: item.offsetWidth,
-              height: item.offsetHeight,
-            };
-          });
+          )
+            .map((item) => {
+              const galleryItem = appData.gallery.find(
+                (g) => g.id === item.dataset.galleryId
+              );
+              return {
+                path: galleryItem ? galleryItem.path : "",
+                left: (item.offsetLeft / canvasRect.width) * 100,
+                top: (item.offsetTop / canvasRect.height) * 100,
+                width: item.offsetWidth,
+                height: item.offsetHeight,
+                rotation: parseFloat(item.dataset.rotation) || 0,
+              };
+            })
+            .filter((item) => item.path);
 
-          if (items.length === 0) {
-            showToast("Canvas is empty. Add some items first!");
-            return;
-          }
+          if (items.length === 0) return showToast("Canvas is empty.");
 
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.applyOverlay === "function"
-          ) {
-            window.electronAPI.applyOverlay(items);
-            showToast("Overlay applied!");
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          window.electronAPI.applyOverlay(items);
+          showToast("Overlay applied!");
         });
 
         removeOverlayBtn.addEventListener("click", () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.removeOverlay === "function"
-          ) {
-            window.electronAPI.removeOverlay();
-            showToast("Overlay removed.");
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          if (window.electronAPI) window.electronAPI.removeOverlay();
+          showToast("Overlay removed.");
         });
 
         minimizeToTrayBtn.addEventListener("click", () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.minimizeToTray === "function"
-          ) {
-            window.electronAPI.minimizeToTray();
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          if (window.electronAPI) window.electronAPI.minimizeToTray();
         });
       });
     </script>
