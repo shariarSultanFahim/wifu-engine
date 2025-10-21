@@ -3,263 +3,572 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Windows 11 Overlay Creator</title>
+    <title>Wifu Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Feather Icons for UI -->
+    <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body
-    class="bg-zinc-900 flex flex-col items-center justify-center min-h-screen p-4 md:p-8 transition-colors duration-300"
-  >
-    <div id="app-container" class="w-full max-w-7xl">
-      <!-- Header Controls -->
-      <header
-        class="controls bg-zinc-800/50 backdrop-blur-xl p-4 rounded-xl mb-6 border border-zinc-700 shadow-lg flex flex-wrap items-center justify-between gap-4"
+  <body class="bg-zinc-900 text-zinc-100">
+    <div class="flex h-screen">
+      <!-- Vertical Sidebar -->
+      <nav
+        class="w-20 bg-zinc-900/50 border-r border-zinc-800 flex flex-col items-center py-6 space-y-8"
       >
-        <h1 class="text-xl font-bold text-white">Overlay Creator</h1>
+        <div class="text-purple-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="feather feather-wind"
+          >
+            <path
+              d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"
+            ></path>
+          </svg>
+        </div>
+        <div class="flex flex-col space-y-8">
+          <button
+            data-section="editor"
+            class="nav-btn p-2 rounded-lg bg-purple-600 text-white"
+          >
+            <i data-feather="edit" class="sidebar-icon"></i>
+          </button>
+          <button
+            data-section="gallery"
+            class="nav-btn p-2 rounded-lg text-zinc-400"
+          >
+            <i data-feather="image" class="sidebar-icon"></i>
+          </button>
+          <button
+            data-section="presets"
+            class="nav-btn p-2 rounded-lg text-zinc-400"
+          >
+            <i data-feather="save" class="sidebar-icon"></i>
+          </button>
+        </div>
+      </nav>
 
-        <div class="flex flex-wrap items-center gap-4">
-          <!-- Canvas Size Controls -->
-          <div class="flex items-center gap-4">
-            <button
-              id="get-screen-size-btn"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
-            >
-              Use Screen Size
-            </button>
-            <div class="flex items-center gap-2">
-              <input
-                type="number"
-                id="custom-width"
-                placeholder="Width"
-                class="bg-zinc-700 border border-zinc-600 text-white text-sm rounded-lg w-20 p-2.5"
-              />
-              <span class="text-zinc-400">x</span>
-              <input
-                type="number"
-                id="custom-height"
-                placeholder="Height"
-                class="bg-zinc-700 border border-zinc-600 text-white text-sm rounded-lg w-20 p-2.5"
-              />
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Section: Editor -->
+        <div id="editor" class="app-section flex flex-col h-full">
+          <!-- Header Controls -->
+          <header
+            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex flex-wrap items-center justify-between gap-3 shrink-0"
+          >
+            <div class="flex items-center gap-4">
               <button
-                id="apply-custom-size-btn"
-                class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
+                id="save-preset-btn"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-3 rounded-lg flex items-center gap-2"
               >
-                Apply
+                <i data-feather="save" class="w-4 h-4"></i> Save Preset
               </button>
             </div>
-          </div>
 
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-2">
-            <button
-              id="add-image-btn"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Add Image/GIF
-            </button>
-            <input
-              type="file"
-              id="image-upload"
-              class="hidden"
-              accept="image/*"
-              multiple
-            />
+            <div class="flex items-center gap-4">
+              <button
+                id="get-screen-size-btn"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-3 rounded-lg"
+              >
+                Use Screen Size
+              </button>
+              <div>
+                <input
+                  type="number"
+                  id="custom-width"
+                  placeholder="W"
+                  class="bg-zinc-700 border border-zinc-600 text-sm rounded-lg w-16 p-2"
+                />
+                <span class="text-zinc-400 mx-1">x</span>
+                <input
+                  type="number"
+                  id="custom-height"
+                  placeholder="H"
+                  class="bg-zinc-700 border border-zinc-600 text-sm rounded-lg w-16 p-2"
+                />
+                <button
+                  id="apply-custom-size-btn"
+                  class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold py-2 px-3 rounded-lg ml-2"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
 
+            <div class="flex items-center gap-2">
+              <button
+                id="apply-overlay-btn"
+                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Apply Overlay
+              </button>
+              <button
+                id="remove-overlay-btn"
+                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Remove Overlay
+              </button>
+              <button
+                id="minimize-to-tray-btn"
+                class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+              >
+                Minimize
+              </button>
+            </div>
+          </header>
+
+          <!-- Main Canvas Area -->
+          <main
+            class="flex-1 flex justify-center items-center p-4 overflow-auto bg-zinc-900"
+          >
+            <div
+              id="canvas-container"
+              style="width: 1280px; aspect-ratio: 16/9; max-width: 100%"
+            ></div>
+          </main>
+        </div>
+
+        <!-- Section: Gallery -->
+        <div id="gallery" class="app-section hidden h-full flex flex-col">
+          <header
+            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex items-center justify-between shrink-0"
+          >
+            <h2 class="text-lg font-bold">Image Gallery</h2>
             <button
-              id="apply-overlay-btn"
-              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
+              id="import-gallery-btn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
             >
-              Apply as Overlay
+              <i data-feather="plus-circle" class="w-5 h-5"></i> Import GIFs
             </button>
-            <button
-              id="remove-overlay-btn"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Remove Overlay
-            </button>
-            <button
-              id="minimize-to-tray-btn"
-              class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105"
-            >
-              Minimize to Tray
-            </button>
+          </header>
+          <div
+            id="gallery-grid"
+            class="flex-1 p-6 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4"
+          >
+            <!-- Gallery items will be injected here -->
           </div>
         </div>
-      </header>
 
-      <!-- Main Canvas Area -->
-      <main class="w-full flex justify-center">
-        <div
-          id="canvas-container"
-          class="canvas-container"
-          style="
-            background-image: url('https://placehold.co/1920x1080/000000/FFFFFF?text=Windows+Desktop+Background');
-            width: 1280px;
-            aspect-ratio: 16/9;
-            max-width: 100%;
-          "
-        >
-          <!-- Draggable items will be appended here -->
+        <!-- Section: Presets -->
+        <div id="presets" class="app-section hidden h-full flex flex-col">
+          <header
+            class="bg-zinc-800/50 p-3 border-b border-zinc-700 shadow-lg flex items-center justify-between shrink-0"
+          >
+            <h2 class="text-lg font-bold">Layout Presets</h2>
+            <button
+              id="new-preset-btn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+            >
+              <i data-feather="plus-circle" class="w-5 h-5"></i> New Preset
+            </button>
+          </header>
+          <div
+            id="presets-list"
+            class="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-4"
+          >
+            <!-- Presets will be injected here -->
+          </div>
         </div>
-      </main>
+      </div>
     </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
+    <!-- Save Preset Modal -->
+    <div
+      id="save-preset-modal"
+      class="fixed inset-0 z-40 items-center justify-center hidden modal-backdrop"
+    >
+      <div
+        class="bg-zinc-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-zinc-700"
+      >
+        <h3 class="text-lg font-bold mb-4">Save Preset</h3>
+        <div class="space-y-4">
+          <div>
+            <label
+              for="preset-name"
+              class="block text-sm font-medium text-zinc-300"
+              >Preset Name</label
+            >
+            <input
+              type="text"
+              id="preset-name"
+              class="mt-1 block w-full bg-zinc-700 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+          <div>
+            <label
+              for="preset-description"
+              class="block text-sm font-medium text-zinc-300"
+              >Description</label
+            >
+            <textarea
+              id="preset-description"
+              rows="3"
+              class="mt-1 block w-full bg-zinc-700 border border-zinc-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+            ></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            id="cancel-save-preset-btn"
+            class="px-4 py-2 bg-zinc-600 hover:bg-zinc-700 text-white font-semibold rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-save-preset-btn"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize Feather Icons
+      feather.replace();
+    </script>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // Element references
+        // --- STATE MANAGEMENT ---
+        let appData = { gallery: [], presets: [] };
+        let activeItem = null;
+        let currentAction = null;
+        let initialX, initialY, initialWidth, offsetX, offsetY;
+        let currentPresetId = null; // Track which preset is being edited
+
+        // --- DOM ELEMENTS ---
+        const canvasContainer = document.getElementById("canvas-container");
+        const toast = document.getElementById("toast");
+        const sections = {
+          editor: document.getElementById("editor"),
+          gallery: document.getElementById("gallery"),
+          presets: document.getElementById("presets"),
+        };
+        const navButtons = document.querySelectorAll(".nav-btn");
+
+        // Editor elements
         const getScreenSizeBtn = document.getElementById("get-screen-size-btn");
         const customWidthInput = document.getElementById("custom-width");
         const customHeightInput = document.getElementById("custom-height");
         const applyCustomSizeBtn = document.getElementById(
           "apply-custom-size-btn"
         );
-        const addImageBtn = document.getElementById("add-image-btn");
-        const imageUpload = document.getElementById("image-upload");
         const applyOverlayBtn = document.getElementById("apply-overlay-btn");
         const removeOverlayBtn = document.getElementById("remove-overlay-btn");
         const minimizeToTrayBtn = document.getElementById(
           "minimize-to-tray-btn"
         );
-        const canvasContainer = document.getElementById("canvas-container");
-        const toast = document.getElementById("toast");
+        const savePresetBtn = document.getElementById("save-preset-btn");
 
-        let activeItem = null;
-        let currentAction = null; // 'drag' or 'resize'
-        let initialX, initialY, initialWidth, offsetX, offsetY;
+        // Gallery elements
+        const importGalleryBtn = document.getElementById("import-gallery-btn");
+        const galleryGrid = document.getElementById("gallery-grid");
 
+        // Preset elements
+        const newPresetBtn = document.getElementById("new-preset-btn");
+        const presetsList = document.getElementById("presets-list");
+
+        // Modal elements
+        const savePresetModal = document.getElementById("save-preset-modal");
+        const presetNameInput = document.getElementById("preset-name");
+        const presetDescInput = document.getElementById("preset-description");
+        const cancelSavePresetBtn = document.getElementById(
+          "cancel-save-preset-btn"
+        );
+        const confirmSavePresetBtn = document.getElementById(
+          "confirm-save-preset-btn"
+        );
+
+        // --- INITIALIZATION ---
+        async function initialize() {
+          if (window.electronAPI) {
+            appData = await window.electronAPI.loadData();
+            renderGallery();
+            renderPresets();
+          }
+          setCanvasSize(1920, 1080);
+        }
+        initialize();
+
+        // --- UI & NAVIGATION ---
         function showToast(message) {
           toast.textContent = message;
           toast.classList.add("show");
-          setTimeout(() => {
-            toast.classList.remove("show");
-          }, 3000);
+          setTimeout(() => toast.classList.remove("show"), 3000);
         }
 
-        function setCanvasSize(width, height) {
-          if (!width || !height || width <= 0 || height <= 0) {
-            showToast("Invalid resolution provided.");
+        navButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const sectionId = button.dataset.section;
+
+            // Toggle active section
+            Object.values(sections).forEach((s) => s.classList.add("hidden"));
+            sections[sectionId].classList.remove("hidden");
+
+            // Toggle button styles
+            navButtons.forEach((btn) => {
+              btn.classList.remove("bg-purple-600", "text-white");
+              btn.classList.add("text-zinc-400");
+            });
+            button.classList.add("bg-purple-600", "text-white");
+            button.classList.remove("text-zinc-400");
+          });
+        });
+
+        // --- GALLERY LOGIC ---
+        function renderGallery() {
+          galleryGrid.innerHTML = "";
+          appData.gallery.forEach((item) => {
+            const div = document.createElement("div");
+            div.className =
+              "relative aspect-square bg-zinc-800 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-purple-500 transition-all";
+            div.innerHTML = `
+                    <img src="${item.path}" class="w-full h-full object-contain">
+                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p class="text-white font-bold text-sm">Add to Editor</p>
+                    </div>
+                `;
+            div.addEventListener("click", () => {
+              createDraggableItem(item.id);
+              showToast("Added image to editor.");
+            });
+            galleryGrid.appendChild(div);
+          });
+        }
+
+        importGalleryBtn.addEventListener("click", async () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
+
+          const newFiles = await window.electronAPI.importGalleryFiles();
+          if (newFiles && newFiles.length > 0) {
+            appData.gallery.push(...newFiles);
+            await window.electronAPI.saveData(appData);
+            renderGallery();
+            showToast(`Imported ${newFiles.length} new image(s).`);
+          }
+        });
+
+        // --- PRESET LOGIC ---
+        function renderPresets() {
+          presetsList.innerHTML = "";
+          if (appData.presets.length === 0) {
+            presetsList.innerHTML = `<p class="text-zinc-500 text-center">No presets saved yet. Create one in the Editor!</p>`;
             return;
           }
-          canvasContainer.style.aspectRatio = `${width} / ${height}`;
-          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/1e293b/94a3b8?text=Simulated+Desktop+${width}x${height}')`;
-          showToast(`Canvas size set to ${width}x${height}.`);
+          appData.presets.forEach((preset) => {
+            const div = document.createElement("div");
+            div.className =
+              "bg-zinc-800 p-4 rounded-lg border border-zinc-700 flex justify-between items-center";
+            div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-white">${preset.name}</h4>
+                        <p class="text-sm text-zinc-400">${preset.description}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button data-preset-id="${preset.id}" class="load-preset-btn px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">Load</button>
+                        <button data-preset-id="${preset.id}" class="delete-preset-btn px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg">Delete</button>
+                    </div>
+                `;
+            presetsList.appendChild(div);
+          });
         }
 
-        setCanvasSize(1920, 1080);
+        presetsList.addEventListener("click", async (e) => {
+          if (e.target.classList.contains("load-preset-btn")) {
+            const presetId = e.target.dataset.presetId;
+            const preset = appData.presets.find((p) => p.id === presetId);
+            if (preset) {
+              loadPreset(preset);
+              showToast(`Loaded preset: ${preset.name}`);
+              // Switch to editor view
+              document.querySelector('.nav-btn[data-section="editor"]').click();
+            }
+          } else if (e.target.classList.contains("delete-preset-btn")) {
+            const presetIdToDelete = e.target.dataset.presetId;
+            appData.presets = appData.presets.filter(
+              (p) => p.id !== presetIdToDelete
+            );
+            await window.electronAPI.saveData(appData);
+            renderPresets();
+            showToast("Preset deleted.");
+          }
+        });
 
-        getScreenSizeBtn.addEventListener("click", async () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.getScreenSize === "function"
-          ) {
-            try {
-              const { width, height } =
-                await window.electronAPI.getScreenSize();
-              setCanvasSize(width, height);
-              customWidthInput.value = width;
-              customHeightInput.value = height;
-            } catch (error) {
-              showToast("Could not get screen size.");
-              console.error("Error getting screen size:", error);
+        newPresetBtn.addEventListener("click", () => {
+          clearCanvas();
+          currentPresetId = null; // This is a new, unsaved preset
+          document.querySelector('.nav-btn[data-section="editor"]').click();
+          showToast("Started a new preset.");
+        });
+
+        function loadPreset(preset) {
+          clearCanvas();
+          currentPresetId = preset.id;
+          preset.items.forEach((item) => {
+            const galleryItem = appData.gallery.find(
+              (g) => g.id === item.galleryId
+            );
+            if (galleryItem) {
+              const el = createDraggableItem(item.galleryId, false);
+              el.style.left = `${item.left}%`;
+              el.style.top = `${item.top}%`;
+              el.style.width = `${item.width}px`;
+              el.style.height = `${item.height}px`;
+            }
+          });
+        }
+
+        // Modal Logic for Saving Presets
+        savePresetBtn.addEventListener("click", () => {
+          const items = Array.from(
+            canvasContainer.querySelectorAll(".overlay-item")
+          );
+          if (items.length === 0)
+            return showToast("Cannot save an empty preset.");
+
+          if (currentPresetId) {
+            // It's an existing preset, just update it
+            const existingPreset = appData.presets.find(
+              (p) => p.id === currentPresetId
+            );
+            if (existingPreset) {
+              saveOrUpdatePreset(currentPresetId);
+            } else {
+              // The ID is stale, treat as new
+              currentPresetId = null;
+              presetNameInput.value = "";
+              presetDescInput.value = "";
+              savePresetModal.classList.remove("hidden");
+              savePresetModal.classList.add("flex");
             }
           } else {
-            showToast("This feature is only available in the desktop app.");
+            // It's a new preset, show modal to get name/desc
+            presetNameInput.value = "";
+            presetDescInput.value = "";
+            savePresetModal.classList.remove("hidden");
+            savePresetModal.classList.add("flex");
           }
         });
 
-        applyCustomSizeBtn.addEventListener("click", () => {
-          const width = parseInt(customWidthInput.value, 10);
-          const height = parseInt(customHeightInput.value, 10);
-          setCanvasSize(width, height);
+        cancelSavePresetBtn.addEventListener("click", () => {
+          savePresetModal.classList.add("hidden");
+          savePresetModal.classList.remove("flex");
         });
 
-        canvasContainer.addEventListener("mousedown", (e) => {
-          if (e.target === canvasContainer) {
-            if (activeItem) {
-              activeItem.classList.remove("selected");
-              activeItem = null;
-            }
-          }
+        confirmSavePresetBtn.addEventListener("click", () => {
+          saveOrUpdatePreset();
         });
 
-        addImageBtn.addEventListener("click", () => imageUpload.click());
-        imageUpload.addEventListener("change", (event) => {
-          if (event.target.files) {
-            Array.from(event.target.files).forEach((file) => {
-              // FIX 1: Pass the file object to be processed
-              createDraggableItem(file);
-            });
-            event.target.value = null; // Reset file input
-          }
-        });
+        async function saveOrUpdatePreset(idToUpdate = null) {
+          const canvasRect = canvasContainer.getBoundingClientRect();
+          const itemsToSave = Array.from(
+            canvasContainer.querySelectorAll(".overlay-item")
+          ).map((item) => ({
+            galleryId: item.dataset.galleryId,
+            left: (item.offsetLeft / canvasRect.width) * 100,
+            top: (item.offsetTop / canvasRect.height) * 100,
+            width: item.offsetWidth,
+            height: item.offsetHeight,
+          }));
 
-        function createDraggableItem(file) {
-          // The file object from the input contains the absolute path we need for the main process
-          if (!file.path) {
-            showToast(
-              "Could not get file path. This may not work in a web browser."
+          if (idToUpdate) {
+            const presetIndex = appData.presets.findIndex(
+              (p) => p.id === idToUpdate
             );
-            return;
+            if (presetIndex > -1) {
+              appData.presets[presetIndex].items = itemsToSave;
+              showToast(
+                `Preset '${appData.presets[presetIndex].name}' updated.`
+              );
+            }
+          } else {
+            const name = presetNameInput.value.trim();
+            if (!name) return showToast("Preset name is required.");
+
+            const newPreset = {
+              id: `preset_${Date.now()}`,
+              name,
+              description: presetDescInput.value.trim(),
+              items: itemsToSave,
+            };
+            appData.presets.push(newPreset);
+            currentPresetId = newPreset.id; // Start tracking this new preset
+            showToast(`Preset '${name}' saved.`);
           }
 
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const itemWrapper = document.createElement("div");
-            itemWrapper.className = "overlay-item";
-            itemWrapper.style.top = "20px";
-            itemWrapper.style.left = "20px";
+          await window.electronAPI.saveData(appData);
+          renderPresets();
+          savePresetModal.classList.add("hidden");
+          savePresetModal.classList.remove("flex");
+        }
 
-            // FIX 1: Store the absolute file path on a data attribute
-            itemWrapper.dataset.filePath = file.path;
+        // --- EDITOR & CANVAS LOGIC ---
+        function setCanvasSize(width, height) {
+          if (!width || !height) return showToast("Invalid resolution.");
+          canvasContainer.style.aspectRatio = `${width} / ${height}`;
+          canvasContainer.style.backgroundImage = `url('https://placehold.co/${width}x${height}/18181b/a1a1aa?text=Editor+Canvas+${width}x${height}')`;
+          showToast(`Canvas size: ${width}x${height}.`);
+        }
 
-            const img = document.createElement("img");
-            img.src = e.target.result; // Use data URL for local preview
+        function clearCanvas() {
+          canvasContainer.innerHTML = "";
+        }
 
-            const resizeHandle = document.createElement("div");
-            resizeHandle.className = "resize-handle br";
+        function createDraggableItem(galleryId, showCreationToast = true) {
+          const galleryItem = appData.gallery.find((g) => g.id === galleryId);
+          if (!galleryItem) return null;
 
-            const deleteHandle = document.createElement("div");
-            deleteHandle.className = "delete-handle";
-            deleteHandle.innerHTML = "&times;";
+          const itemWrapper = document.createElement("div");
+          itemWrapper.className = "overlay-item";
+          itemWrapper.dataset.galleryId = galleryId;
+          itemWrapper.style.top = "20px";
+          itemWrapper.style.left = "20px";
 
-            deleteHandle.addEventListener("click", (e) => {
+          itemWrapper.innerHTML = `
+                <img src="${galleryItem.path}" />
+                <div class="resize-handle"></div>
+                <div class="delete-handle">&times;</div>
+            `;
+
+          canvasContainer.appendChild(itemWrapper);
+          itemWrapper.addEventListener("mousedown", startAction);
+          itemWrapper
+            .querySelector(".delete-handle")
+            .addEventListener("click", (e) => {
               e.stopPropagation();
-              canvasContainer.removeChild(itemWrapper);
-              if (activeItem === itemWrapper) {
-                activeItem = null;
-              }
+              itemWrapper.remove();
               showToast("Item deleted.");
             });
 
-            itemWrapper.appendChild(img);
-            itemWrapper.appendChild(resizeHandle);
-            itemWrapper.appendChild(deleteHandle);
-            canvasContainer.appendChild(itemWrapper);
-
-            itemWrapper.addEventListener("mousedown", startAction);
-            showToast("Added new item to the canvas!");
-          };
-          reader.readAsDataURL(file);
+          if (showCreationToast) showToast("Added item to the canvas!");
+          return itemWrapper;
         }
 
         function startAction(e) {
-          e.stopPropagation();
           if (e.target.classList.contains("delete-handle")) return;
-
-          if (activeItem && activeItem !== e.currentTarget) {
+          e.stopPropagation();
+          if (activeItem && activeItem !== e.currentTarget)
             activeItem.classList.remove("selected");
-          }
 
           activeItem = e.currentTarget;
           activeItem.classList.add("selected");
-
           initialX = e.clientX;
           initialY = e.clientY;
 
@@ -271,44 +580,23 @@
             offsetX = e.clientX - activeItem.getBoundingClientRect().left;
             offsetY = e.clientY - activeItem.getBoundingClientRect().top;
           }
-
           document.addEventListener("mousemove", performAction);
           document.addEventListener("mouseup", endAction);
         }
 
         function performAction(e) {
-          if (!activeItem || !currentAction) return;
-
+          if (!activeItem) return;
+          const canvasRect = canvasContainer.getBoundingClientRect();
           if (currentAction === "drag") {
-            const canvasRect = canvasContainer.getBoundingClientRect();
             let x = e.clientX - canvasRect.left - offsetX;
             let y = e.clientY - canvasRect.top - offsetY;
-
-            const visibleMargin = 20;
-            x = Math.max(
-              -activeItem.offsetWidth + visibleMargin,
-              Math.min(x, canvasRect.width - visibleMargin)
-            );
-            y = Math.max(
-              -activeItem.offsetHeight + visibleMargin,
-              Math.min(y, canvasRect.height - visibleMargin)
-            );
-
             activeItem.style.left = `${x}px`;
             activeItem.style.top = `${y}px`;
           } else if (currentAction === "resize") {
             const dx = e.clientX - initialX;
-            const img = activeItem.querySelector("img");
-            if (!img.naturalWidth || !img.naturalHeight) return;
-
-            const aspectRatio = img.naturalWidth / img.naturalHeight;
-            const newWidth = initialWidth + dx;
-            const newHeight = newWidth / aspectRatio;
-
-            if (newWidth > 20) {
-              activeItem.style.width = `${newWidth}px`;
-              activeItem.style.height = `${newHeight}px`;
-            }
+            const newWidth = Math.max(20, initialWidth + dx);
+            activeItem.style.width = `${newWidth}px`;
+            activeItem.style.height = "auto"; // Maintain aspect ratio
           }
         }
 
@@ -318,58 +606,65 @@
           document.removeEventListener("mouseup", endAction);
         }
 
+        canvasContainer.addEventListener("mousedown", (e) => {
+          if (e.target === canvasContainer && activeItem) {
+            activeItem.classList.remove("selected");
+            activeItem = null;
+          }
+        });
+
+        // --- ELECTRON IPC EVENT LISTENERS ---
+        getScreenSizeBtn.addEventListener("click", async () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
+          const { width, height } = await window.electronAPI.getScreenSize();
+          setCanvasSize(width, height);
+          customWidthInput.value = width;
+          customHeightInput.value = height;
+        });
+
+        applyCustomSizeBtn.addEventListener("click", () => {
+          setCanvasSize(
+            parseInt(customWidthInput.value),
+            parseInt(customHeightInput.value)
+          );
+        });
+
         applyOverlayBtn.addEventListener("click", () => {
+          if (!window.electronAPI)
+            return showToast("Feature only available in app.");
           const canvasRect = canvasContainer.getBoundingClientRect();
           const items = Array.from(
             canvasContainer.querySelectorAll(".overlay-item")
-          ).map((item) => {
-            return {
-              // FIX 1: Send the stored file path instead of the base64 src
-              path: item.dataset.filePath,
-              left: (item.offsetLeft / canvasRect.width) * 100,
-              top: (item.offsetTop / canvasRect.height) * 100,
-              width: item.offsetWidth,
-              height: item.offsetHeight,
-            };
-          });
+          )
+            .map((item) => {
+              const galleryItem = appData.gallery.find(
+                (g) => g.id === item.dataset.galleryId
+              );
+              return {
+                path: galleryItem ? galleryItem.path : "",
+                left: (item.offsetLeft / canvasRect.width) * 100,
+                top: (item.offsetTop / canvasRect.height) * 100,
+                width: item.offsetWidth,
+                height: item.offsetHeight,
+              };
+            })
+            .filter((item) => item.path);
 
-          if (items.length === 0) {
-            showToast("Canvas is empty. Add some items first!");
-            return;
-          }
+          if (items.length === 0) return showToast("Canvas is empty.");
 
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.applyOverlay === "function"
-          ) {
-            window.electronAPI.applyOverlay(items);
-            showToast("Overlay applied!");
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          window.electronAPI.applyOverlay(items);
+          showToast("Overlay applied!");
         });
 
         removeOverlayBtn.addEventListener("click", () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.removeOverlay === "function"
-          ) {
-            window.electronAPI.removeOverlay();
-            showToast("Overlay removed.");
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          if (!window.electronAPI) return;
+          window.electronAPI.removeOverlay();
+          showToast("Overlay removed.");
         });
 
         minimizeToTrayBtn.addEventListener("click", () => {
-          if (
-            window.electronAPI &&
-            typeof window.electronAPI.minimizeToTray === "function"
-          ) {
-            window.electronAPI.minimizeToTray();
-          } else {
-            showToast("Error: This feature requires the desktop app.");
-          }
+          if (window.electronAPI) window.electronAPI.minimizeToTray();
         });
       });
     </script>

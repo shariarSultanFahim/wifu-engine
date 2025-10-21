@@ -1,9 +1,44 @@
+:root {
+  --bg-primary: #18181b;
+  --bg-secondary: #27272a;
+  --border-color: #3f3f46;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --accent: #6d28d9;
+  --accent-hover: #5b21b6;
+}
+
 body {
   font-family: "Inter", sans-serif;
-  background-color: #1a1a1a;
-  color: #f0f0f0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
 }
-.canvas-container {
+
+/* Custom scrollbar for gallery/presets */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4f4f5a;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6f6f7a;
+}
+
+.sidebar-icon {
+  transition: all 0.2s ease-in-out;
+}
+.sidebar-icon:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+#canvas-container {
   position: relative;
   background-size: cover;
   background-position: center;
@@ -11,8 +46,9 @@ body {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
+
 .overlay-item {
   position: absolute;
   cursor: grab;
@@ -31,17 +67,13 @@ body {
   cursor: grabbing;
 }
 .overlay-item.selected {
-  outline: 2px dashed #38bdf8; /* sky-400 */
+  outline: 2px dashed #38bdf8;
   z-index: 1000;
 }
+
 .resize-handle,
 .delete-handle {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: #38bdf8;
-  border: 2px solid white;
-  border-radius: 50%;
   display: none;
   z-index: 1001;
 }
@@ -49,17 +81,24 @@ body {
 .overlay-item.selected .delete-handle {
   display: block;
 }
-.resize-handle.br {
+
+.resize-handle {
+  width: 12px;
+  height: 12px;
+  background-color: #38bdf8;
+  border: 2px solid white;
+  border-radius: 50%;
   bottom: -6px;
   right: -6px;
   cursor: nwse-resize;
 }
+
 .delete-handle {
   top: -8px;
   right: -8px;
   width: 20px;
   height: 20px;
-  background-color: #ef4444; /* red-500 */
+  background-color: #ef4444;
   cursor: pointer;
   z-index: 1002;
   display: flex;
@@ -69,10 +108,12 @@ body {
   font-weight: bold;
   color: white;
   line-height: 1;
+  border-radius: 50%;
 }
+
 .toast {
   position: fixed;
-  bottom: 20px;
+  bottom: -100px;
   left: 50%;
   transform: translateX(-50%);
   padding: 12px 24px;
@@ -80,13 +121,15 @@ body {
   color: white;
   border-radius: 9999px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  visibility: hidden;
+  z-index: 5000;
+  transition: bottom 0.5s ease-in-out;
 }
 .toast.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  bottom: 20px;
+}
+
+/* Modal styles */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
 }

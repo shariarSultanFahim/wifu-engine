@@ -1,14 +1,14 @@
-// preload.js
-
 const { contextBridge, ipcRenderer } = require("electron");
 
-// Expose a safe, context-isolated API to the renderer process (index.html)
 contextBridge.exposeInMainWorld("electronAPI", {
-  // Sends the overlay's item data to the main process.
+  // Core overlay functions
   applyOverlay: (items) => ipcRenderer.send("apply-overlay", items),
-  // Gets the screen size from the main process.
-  getScreenSize: () => ipcRenderer.invoke("get-screen-size"),
-  // New functions exposed to the frontend
   removeOverlay: () => ipcRenderer.send("remove-overlay"),
   minimizeToTray: () => ipcRenderer.send("minimize-to-tray"),
+  getScreenSize: () => ipcRenderer.invoke("get-screen-size"),
+
+  // --- NEW --- Gallery and Preset data management
+  loadData: () => ipcRenderer.invoke("load-data"),
+  saveData: (data) => ipcRenderer.invoke("save-data", data),
+  importGalleryFiles: () => ipcRenderer.invoke("import-gallery-files"),
 });
