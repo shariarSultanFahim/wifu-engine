@@ -52,10 +52,8 @@ const createWindow = () => {
   });
 };
 
-const createOverlay = (htmlContent) => {
-  if (overlayWindow) {
-    overlayWindow.close();
-  }
+// Internal function to handle the actual creation of the overlay window
+const _createActualOverlay = (htmlContent) => {
   try {
     const tempDir = app.getPath("temp");
     tempOverlayFile = path.join(tempDir, `overlay-${Date.now()}.html`);
@@ -81,10 +79,15 @@ const createOverlay = (htmlContent) => {
     webPreferences: { nodeIntegration: false, contextIsolation: true },
   });
 
+  overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setIgnoreMouseEvents(true);
   overlayWindow.loadFile(tempOverlayFile);
+
   overlayWindow.once("ready-to-show", () => {
-    overlayWindow.show();
+    // If the window still exists (hasn't been closed again rapidly), show it.
+    if (overlayWindow) {
+      overlayWindow.show();
+    }
   });
 
   overlayWindow.on("closed", () => {
@@ -98,6 +101,20 @@ const createOverlay = (htmlContent) => {
     tempOverlayFile = null;
     overlayWindow = null;
   });
+};
+
+// This function now safely handles closing an existing overlay before creating a new one.
+const createOverlay = (htmlContent) => {
+  if (overlayWindow) {
+    // When the old window confirms it has closed, then create the new one.
+    overlayWindow.once("closed", () => {
+      _createActualOverlay(htmlContent);
+    });
+    overlayWindow.close();
+  } else {
+    // If no overlay exists, create one immediately.
+    _createActualOverlay(htmlContent);
+  }
 };
 
 app.whenReady().then(() => {
@@ -134,7 +151,6 @@ ipcMain.on("apply-overlay", (event, items) => {
         const imageBase64 = imageBuffer.toString("base64");
         const mimeType = `image/${path.extname(item.path).slice(1) || "png"}`;
         const imageSrc = `data:${mimeType};base64,${imageBase64}`;
-        // --- ROTATION ADDED HERE ---
         const transform = `transform: rotate(${item.rotation || 0}deg);`;
         return `<img src="${imageSrc}" style="position: absolute; left: ${item.left}%; top: ${item.top}%; width: ${item.width}px; height: ${item.height}px; ${transform}">`;
       } catch (error) {
