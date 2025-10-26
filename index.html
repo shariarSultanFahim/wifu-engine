@@ -19,7 +19,6 @@
       class="h-full w-full rounded-lg overflow-hidden flex flex-col"
     >
       <div class="flex h-[100vh] overflow-hidden">
-        <!-- Vertical Sidebar -->
         <nav
           class="w-20 h-full bg-black/20 flex flex-col items-center py-4 space-y-8 shrink-0 border-r border-white/10"
         >
@@ -65,9 +64,7 @@
           </div>
         </nav>
 
-        <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
-          <!-- Section: Editor -->
           <div
             id="editor"
             class="app-section flex flex-col h-full overflow-hidden space-y-4"
@@ -143,7 +140,6 @@
             </main>
           </div>
 
-          <!-- Other sections remain unchanged but will be inside the new layout -->
           <div
             id="gallery"
             class="app-section hidden h-full flex flex-col space-y-4"
@@ -182,6 +178,32 @@
                 <i data-feather="plus-circle" class="w-5 h-5"></i> New Preset
               </button>
             </header>
+
+            <div
+              class="bg-black/20 p-3 rounded-lg border border-white/10 flex items-center justify-center gap-6 shrink-0"
+            >
+              <h3 class="font-bold text-white mr-4">App Settings</h3>
+              <label
+                class="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  id="start-on-startup-check"
+                  class="w-4 h-4 rounded bg-zinc-700 border-zinc-600"
+                />
+                Start on Startup
+              </label>
+              <label
+                class="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  id="load-last-overlay-check"
+                  class="w-4 h-4 rounded bg-zinc-700 border-zinc-600"
+                />
+                Auto-apply Last Overlay
+              </label>
+            </div>
             <div
               id="presets-list"
               class="flex-1 p-2 overflow-y-auto custom-scrollbar space-y-4"
@@ -249,7 +271,7 @@
     </script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        let appData = { gallery: [], presets: [] };
+        let appData = { gallery: [], presets: [], settings: {} }; // Modified
         let activeItem = null;
         let currentAction = null;
         let initialX, initialY, initialWidth, offsetX, offsetY, initialRotation;
@@ -289,9 +311,23 @@
           "confirm-save-preset-btn"
         );
 
+        // --- NEW: Settings Checkboxes (Feature 1) ---
+        const startOnStartupCheck = document.getElementById(
+          "start-on-startup-check"
+        );
+        const loadLastOverlayCheck = document.getElementById(
+          "load-last-overlay-check"
+        );
+
+        // --- MODIFIED: initialize (Feature 1) ---
         async function initialize() {
           if (window.electronAPI) {
             appData = await window.electronAPI.loadData();
+            // Load settings into checkboxes
+            if (appData.settings) {
+              startOnStartupCheck.checked = !!appData.settings.startOnStartup;
+              loadLastOverlayCheck.checked = !!appData.settings.loadLastPreset;
+            }
             renderGallery();
             renderPresets();
           }
@@ -315,19 +351,83 @@
           });
         });
 
+        // --- MODIFIED: renderGallery (Feature 2) ---
+        // Adds a delete button and a specific "add-to-editor-btn"
         function renderGallery() {
           galleryGrid.innerHTML = "";
           appData.gallery.forEach((item) => {
             const div = document.createElement("div");
             div.className =
-              "relative w-40 h-40  aspect-square bg-zinc-800/50 rounded-lg overflow-hidden cursor-pointer group border border-transparent hover:border-pink-400 transition-all";
-            div.innerHTML = `<img src="${item.path}" class="w-40 h-40 object-contain"><div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><p class="text-white font-bold text-sm">Add to Editor</p></div>`;
-            div.addEventListener("click", () => {
-              createDraggableItem(item.id);
-            });
+              "relative w-40 h-40 aspect-square bg-zinc-800/50 rounded-lg overflow-hidden group border border-transparent hover:border-pink-400 transition-all";
+            div.dataset.galleryId = item.id; // Store ID for 'add'
+
+            div.innerHTML = `
+              <img src="${item.path}" class="w-40 h-40 object-contain">
+              <div class="add-to-editor-btn absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <p class="text-white font-bold text-sm">Add to Editor</p>
+              </div>
+              <button data-gallery-id="${item.id}" class="delete-gallery-item-btn absolute top-1 right-1 w-6 h-6 bg-red-600/80 hover:bg-red-700/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Delete from gallery" style="font-size: 20px; line-height: 1;">
+                &times;
+              </button>
+            `;
+
+            // Add listener for "Add to Editor"
+            div
+              .querySelector(".add-to-editor-btn")
+              .addEventListener("click", () => {
+                createDraggableItem(item.id);
+              });
+
             galleryGrid.appendChild(div);
           });
         }
+
+        // --- NEW: Event Listener for Gallery Deletion (Feature 2 & 2.1) ---
+        galleryGrid.addEventListener("click", async (e) => {
+          const deleteBtn = e.target.closest(".delete-gallery-item-btn");
+          if (deleteBtn) {
+            e.stopPropagation(); // Prevent "add to editor" if mis-clicked
+            const galleryId = deleteBtn.dataset.galleryId;
+            if (
+              confirm(
+                "Are you sure you want to delete this item?\n\nThis will also remove it from ALL saved presets."
+              )
+            ) {
+              try {
+                showToast("Deleting item..."); // Give feedback
+                const newData = await window.electronAPI.deleteGalleryItem(
+                  galleryId
+                );
+                if (newData.success === false) throw new Error(newData.error);
+
+                appData = newData; // Update local data
+                renderGallery();
+                renderPresets();
+
+                // Check if deleted item is on canvas
+                const itemsOnCanvas = Array.from(
+                  canvasContainer.querySelectorAll(".overlay-item")
+                );
+                let itemWasRemoved = false;
+                itemsOnCanvas.forEach((itemEl) => {
+                  if (itemEl.dataset.galleryId === galleryId) {
+                    itemEl.remove();
+                    itemWasRemoved = true;
+                  }
+                });
+
+                if (itemWasRemoved)
+                  showToast(
+                    "Item deleted from gallery, presets, and current canvas."
+                  );
+                else showToast("Item deleted from gallery and all presets.");
+              } catch (error) {
+                console.error("Failed to delete item:", error);
+                showToast(`Error deleting item: ${error.message}`);
+              }
+            }
+          }
+        });
 
         importGalleryBtn.addEventListener("click", async () => {
           if (!window.electronAPI)
@@ -335,7 +435,11 @@
           const newFiles = await window.electronAPI.importGalleryFiles();
           if (newFiles && newFiles.length > 0) {
             appData.gallery.push(...newFiles);
-            await window.electronAPI.saveData(appData);
+            // --- MODIFIED: Save only gallery/presets part of data ---
+            await window.electronAPI.saveData({
+              gallery: appData.gallery,
+              presets: appData.presets,
+            });
             renderGallery();
             showToast(`Imported ${newFiles.length} new image(s).`);
           }
@@ -375,7 +479,11 @@
             }
           } else if (e.target.classList.contains("delete-preset-btn")) {
             appData.presets = appData.presets.filter((p) => p.id !== presetId);
-            await window.electronAPI.saveData(appData);
+            // --- MODIFIED: Save only gallery/presets part of data ---
+            await window.electronAPI.saveData({
+              gallery: appData.gallery,
+              presets: appData.presets,
+            });
             renderPresets();
             showToast("Preset deleted.");
           }
@@ -473,7 +581,11 @@
             showToast(`Preset '${name}' saved.`);
           }
 
-          await window.electronAPI.saveData(appData);
+          // --- MODIFIED: Save only gallery/presets part of data ---
+          await window.electronAPI.saveData({
+            gallery: appData.gallery,
+            presets: appData.presets,
+          });
           renderPresets();
           savePresetModal.classList.add("hidden");
           savePresetModal.classList.remove("flex");
@@ -492,7 +604,10 @@
 
         function createDraggableItem(galleryId, showCreationToast = true) {
           const galleryItem = appData.gallery.find((g) => g.id === galleryId);
-          if (!galleryItem) return null;
+          if (!galleryItem) {
+            showToast("Error: This gallery item no longer exists.");
+            return null;
+          }
 
           const itemWrapper = document.createElement("div");
           itemWrapper.className = "overlay-item";
@@ -510,7 +625,7 @@
             .addEventListener("click", (e) => {
               e.stopPropagation();
               itemWrapper.remove();
-              showToast("Item deleted.");
+              showToast("Item removed from canvas.");
             });
 
           if (showCreationToast) showToast("Added item to the canvas!");
@@ -629,7 +744,7 @@
           if (items.length === 0) return showToast("Canvas is empty.");
 
           window.electronAPI.applyOverlay(items);
-          showToast("Overlay applied!");
+          showToast("Overlay applied! (Set as last overlay for startup)");
         });
 
         removeOverlayBtn.addEventListener("click", () => {
@@ -640,6 +755,21 @@
         minimizeToTrayBtn.addEventListener("click", () => {
           if (window.electronAPI) window.electronAPI.minimizeToTray();
         });
+
+        // --- NEW: Event Listeners for Settings (Feature 1) ---
+        async function handleSettingsChange() {
+          if (!window.electronAPI) return;
+          const newSettings = {
+            startOnStartup: startOnStartupCheck.checked,
+            loadLastPreset: loadLastOverlayCheck.checked,
+          };
+          await window.electronAPI.setSettings(newSettings);
+          appData.settings = newSettings; // Update local copy
+          showToast("Settings saved.");
+        }
+
+        startOnStartupCheck.addEventListener("change", handleSettingsChange);
+        loadLastOverlayCheck.addEventListener("change", handleSettingsChange);
       });
     </script>
   </body>

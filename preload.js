@@ -7,8 +7,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimizeToTray: () => ipcRenderer.send("minimize-to-tray"),
   getScreenSize: () => ipcRenderer.invoke("get-screen-size"),
 
-  // --- NEW --- Gallery and Preset data management
+  // --- Gallery and Preset data management ---
   loadData: () => ipcRenderer.invoke("load-data"),
   saveData: (data) => ipcRenderer.invoke("save-data", data),
   importGalleryFiles: () => ipcRenderer.invoke("import-gallery-files"),
+
+  // --- NEW FEATURES ---
+  getSettings: () => ipcRenderer.invoke("get-settings"),
+  setSettings: (settings) => ipcRenderer.invoke("set-settings", settings),
+  deleteGalleryItem: (galleryId) =>
+    ipcRenderer.invoke("delete-gallery-item", galleryId),
 });
