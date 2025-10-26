@@ -40,7 +40,7 @@
 
 # Clone the repository
 
-git clone [https://github.com/your-username/wifu-engine.git](https://github.com/your-username/wifu-engine.git)
+git clone [https://github.com/shariarSultanFahim/wifu-engine.git](https://github.com/shariarSultanFahim/wifu-engine.git)
 
 # Navigate into the project directory
 
@@ -66,3 +66,4 @@ npm run build
 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
