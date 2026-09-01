@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 228 30% 6%;
+    --foreground: 210 40% 98%;
+    
+    --card: 228 25% 9%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 228 25% 9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 326 100% 55%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 226 22% 16%;
+    --muted-foreground: 217 19% 65%;
+    
+    --accent: 262 83% 58%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 226 20% 16%;
+    --input: 226 20% 16%;
+    --ring: 326 100% 55%;
+    
+    --radius: 0.75rem;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+}
+
+body {
+  background-color: #0b0e14;
+  color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Frameless Titlebar window drag */
+.titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.titlebar-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.5);
+}
+
+/* Glow effects */
+.glow-pink {
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.35);
+}
+
+.glow-purple {
+  box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.35);
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+}
+
+.gradient-primary:hover {
+  background: linear-gradient(135deg, #f43f5e 0%, #9333ea 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+}
